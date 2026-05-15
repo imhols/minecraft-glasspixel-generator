@@ -2,7 +2,7 @@ export type Lang = 'zh' | 'en'
 
 export const translations: Record<Lang, Record<string, string>> = {
   zh: {
-    'app.title': 'Minecraft GlassPixel Generator',
+    'app.title': 'Minecraft 玻璃像素画生成器',
     'app.subtitle': '将图片转换为 Minecraft 像素画，通过染色玻璃层精确还原色彩',
     'config.title': '参数设置',
     'config.version': 'Minecraft 版本',
@@ -14,6 +14,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'config.converting': '处理中...',
     'export.schem': '下载 .schem (Sponge)',
     'export.schematic': '下载 .schematic (MCEdit)',
+    'export.litematic': '下载 .litematic (Litematica)',
     'history.title': '历史记录',
     'history.clear': '清空',
     'history.layers': '层',
@@ -40,6 +41,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'config.converting': 'Processing...',
     'export.schem': 'Download .schem (Sponge)',
     'export.schematic': 'Download .schematic (MCEdit)',
+    'export.litematic': 'Download .litematic (Litematica)',
     'history.title': 'History',
     'history.clear': 'Clear',
     'history.layers': 'layers',

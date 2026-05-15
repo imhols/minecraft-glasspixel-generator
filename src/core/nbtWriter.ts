@@ -38,6 +38,17 @@ export class NbtWriter {
     return this
   }
 
+  longArray(v: bigint[]): this {
+    this.int(v.length)
+    for (const n of v) {
+      let val = n
+      for (let i = 7; i >= 0; i--) {
+        this.buf.push(Number(val >> BigInt(i * 8)) & 0xFF)
+      }
+    }
+    return this
+  }
+
   listStart(typeId: number, length: number): this {
     this.byte(typeId)
     this.int(length)
@@ -166,6 +177,82 @@ export function writeLegacySchemNbt(
   w.tag(3, 'WEOffsetX'); w.int(0)
   w.tag(3, 'WEOffsetY'); w.int(0)
   w.tag(3, 'WEOffsetZ'); w.int(0)
+
+  w.end()
+
+  return w.toBytes()
+}
+
+function getTimestampLong(): bigint {
+  return BigInt(Math.floor(Date.now() / 1000)) << 32n
+}
+
+export function writeLitematicNbt(
+  width: number,
+  height: number,
+  length: number,
+  palette: string[],
+  blockData: Uint8Array,
+): Uint8Array {
+  const bitsPerBlock = Math.max(1, Math.ceil(Math.log2(palette.length)))
+  const totalBits = blockData.length * bitsPerBlock
+  const longs = Math.ceil(totalBits / 64)
+  const words = new Array<bigint>(longs).fill(0n)
+
+  for (let i = 0; i < blockData.length; i++) {
+    const bitPos = i * bitsPerBlock
+    const word = Math.floor(bitPos / 64)
+    const offset = bitPos % 64
+    const val = BigInt(blockData[i])
+    words[word] = words[word] | (val << BigInt(offset))
+  }
+
+  const now = getTimestampLong()
+
+  const w = new NbtWriter()
+
+  w.tag(10, 'Litematic')
+
+  w.tag(10, 'Metadata')
+  w.tag(10, 'EnclosingSize')
+  w.tag(3, 'x'); w.int(width)
+  w.tag(3, 'y'); w.int(height)
+  w.tag(3, 'z'); w.int(length)
+  w.end()
+  w.tag(8, 'Author'); w.string('GlassPixel')
+  w.tag(8, 'Description'); w.string('')
+  w.tag(8, 'Name'); w.string('GlassPixel')
+  w.tag(4, 'TimeCreated'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
+  w.tag(4, 'TimeModified'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
+  w.tag(3, 'TotalBlocks'); w.int(blockData.length)
+  w.tag(3, 'TotalVolume'); w.int(width * height * length)
+  w.tag(3, 'TotalBlockEntities'); w.int(0)
+  w.end()
+
+  w.tag(10, 'Regions')
+  w.tag(10, 'GlassPixel')
+  w.tag(3, 'PositionX'); w.int(0)
+  w.tag(3, 'PositionY'); w.int(0)
+  w.tag(3, 'PositionZ'); w.int(0)
+  w.tag(3, 'SizeX'); w.int(width)
+  w.tag(3, 'SizeY'); w.int(height)
+  w.tag(3, 'SizeZ'); w.int(length)
+  w.tag(12, 'BlockStates')
+  w.longArray(words)
+  w.tag(9, 'BlockStatePalette')
+  w.listStart(10, palette.length)
+  for (const id of palette) {
+    w.tag(10, '')
+    w.tag(8, 'Name'); w.string(id)
+    w.end()
+  }
+  w.tag(3, 'TotalVolume'); w.int(width * height * length)
+  w.tag(3, 'TotalBlocks'); w.int(blockData.length)
+  w.tag(9, 'PendingBlockTicks'); w.listStart(0, 0)
+  w.tag(9, 'PendingFluidTicks'); w.listStart(0, 0)
+  w.tag(9, 'BlockEntities'); w.listStart(0, 0)
+  w.tag(9, 'Entities'); w.listStart(0, 0)
+  w.end()
 
   w.end()
 

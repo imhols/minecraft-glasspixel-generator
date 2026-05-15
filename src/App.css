@@ -57,17 +57,20 @@ body {
 }
 
 .lang-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
   font-size: 0.65rem;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--card-border);
-  border-radius: 5px;
+  border-radius: 6px;
   background: var(--card);
   color: var(--text2);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-  flex-shrink: 0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
 }
 
 .lang-btn:hover {

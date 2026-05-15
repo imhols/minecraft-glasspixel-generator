@@ -110,10 +110,10 @@ export default function App() {
 
   return (
     <div className="app">
+      <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
       <header className="header">
         <div className="header-row">
           <h1>{t('app.title')}</h1>
-          <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
         </div>
         <p className="subtitle">{t('app.subtitle')}</p>
       </header>

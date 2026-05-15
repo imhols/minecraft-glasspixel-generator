@@ -1,5 +1,5 @@
 import pako from 'pako'
-import { writeSchemNbt, writeLegacySchemNbt } from './nbtWriter'
+import { writeSchemNbt, writeLegacySchemNbt, writeLitematicNbt } from './nbtWriter'
 import type { ProcessedImage } from './imageProcessor'
 
 const DATA_VERSION: Record<string, number> = {
@@ -81,6 +81,60 @@ export function exportSchemV2(
     palette, paletteMap, blockData,
     DATA_VERSION[getVersionKey(version)] || 3700,
   )
+  return pako.gzip(raw)
+}
+
+export function exportLitematic(
+  result: ProcessedImage,
+  _version: string,
+): Uint8Array {
+  const width = result.width
+  const glassLayers = result.glassLayers || 0
+  const totalHeight = glassLayers === 0 ? 1 : glassLayers * 2
+  const length = result.height
+
+  const AIR = 'minecraft:air'
+  const blockSet = new Set<string>()
+  blockSet.add(AIR)
+  for (let z = 0; z < length; z++) {
+    for (let x = 0; x < width; x++) {
+      const block = result.blockGrid[z][x]
+      if (block) blockSet.add(block.id)
+      if (result.glassGrids) {
+        for (let l = 0; l < glassLayers; l++) {
+          const g = result.glassGrids[l][z][x]
+          if (g) blockSet.add(g.id)
+        }
+      }
+    }
+  }
+
+  const palette = Array.from(blockSet).sort()
+  const paletteMap = new Map<string, number>()
+  palette.forEach((id, i) => { paletteMap.set(id, i) })
+
+  const blockData = new Uint8Array(width * totalHeight * length)
+  let idx = 0
+  for (let y = 0; y < totalHeight; y++) {
+    for (let z = 0; z < length; z++) {
+      for (let x = 0; x < width; x++) {
+        if (y === 0) {
+          const block = result.blockGrid[z][x]
+          blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+        } else if (y % 2 === 1) {
+          const glassIndex = (y - 1) / 2
+          const layer = glassLayers - 1 - glassIndex
+          const glass = result.glassGrids![layer][z][x]
+          blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+        } else {
+          blockData[idx] = paletteMap.get(AIR)!
+        }
+        idx++
+      }
+    }
+  }
+
+  const raw = writeLitematicNbt(width, totalHeight, length, palette, blockData)
   return pako.gzip(raw)
 }
 
