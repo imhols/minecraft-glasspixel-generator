@@ -1,7 +1,9 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import type { ProcessedImage } from '../core/imageProcessor'
+import { useLang } from '../i18n/LangContext'
 
 export default function PreviewCanvas({ result, originalSrc }: { result: ProcessedImage | null; originalSrc?: string }) {
+  const { t } = useLang()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [dataUrl, setDataUrl] = useState('')
   const [showOrig, setShowOrig] = useState(false)
@@ -39,11 +41,11 @@ export default function PreviewCanvas({ result, originalSrc }: { result: Process
 
   return (
     <div className="preview">
-      <h3>预览 ({result.width}×{result.height}, {result.usedBlocks.size} 种方块)</h3>
-      {originalSrc && <span className="hold-hint">按住预览图查看原图</span>}
+      <h3>{t('preview.title', { width: result.width, height: result.height, usedBlocks: result.usedBlocks.size })}</h3>
+      {originalSrc && <span className="hold-hint">{t('preview.holdHint')}</span>}
       <img
         src={displaySrc}
-        alt={isOrig ? '原图' : '像素画预览'}
+        alt={isOrig ? t('preview.altOriginal') : t('preview.alt')}
         className="preview-img"
         style={isOrig ? { imageRendering: 'auto', maxHeight: 'none' } : undefined}
         onMouseDown={onHold}

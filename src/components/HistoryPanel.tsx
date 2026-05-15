@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
 import type { ProcessedImage } from '../core/imageProcessor'
+import { useLang } from '../i18n/LangContext'
 
 export interface HistoryEntry {
   result: ProcessedImage
@@ -15,13 +16,14 @@ export default function HistoryPanel({ entries, onSelect, onDelete, onClear }: {
   onDelete: (i: number) => void
   onClear: () => void
 }) {
+  const { t } = useLang()
   if (entries.length === 0) return null
 
   return (
     <div className="history-panel">
       <div className="history-header">
-        <h3>历史记录</h3>
-        <button className="history-clear" onClick={onClear}>清空</button>
+        <h3>{t('history.title')}</h3>
+        <button className="history-clear" onClick={onClear}>{t('history.clear')}</button>
       </div>
       <div className="history-list">
         {entries.map((entry, i) => (
@@ -38,6 +40,7 @@ function HistoryItem({ entry, index, onSelect, onDelete }: {
   onSelect: (e: HistoryEntry) => void
   onDelete: (i: number) => void
 }) {
+  const { t } = useLang()
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -64,7 +67,7 @@ function HistoryItem({ entry, index, onSelect, onDelete }: {
       <canvas ref={canvasRef} className="history-thumb" />
       <div className="history-info">
         <span className="history-time">{entry.time}</span>
-        <span className="history-params">{entry.result.width}×{entry.result.height} | {entry.glassLayers}层</span>
+        <span className="history-params">{entry.result.width}×{entry.result.height} | {entry.glassLayers}{t('history.layers')}</span>
       </div>
       <button className="history-del" onClick={e => { e.stopPropagation(); onDelete(index) }}>×</button>
     </div>

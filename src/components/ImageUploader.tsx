@@ -1,9 +1,11 @@
 import { useRef, useState, useCallback } from 'react'
+import { useLang } from '../i18n/LangContext'
 
 export default function ImageUploader({ onImageLoaded, hasImage }: {
   onImageLoaded: (file: File) => void
   hasImage?: boolean
 }) {
+  const { t } = useLang()
   const [dragOver, setDragOver] = useState(false)
   const [fileName, setFileName] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -17,8 +19,8 @@ export default function ImageUploader({ onImageLoaded, hasImage }: {
   if (hasImage) {
     return (
       <div className="upload-bar">
-        <span className="upload-bar-name">{fileName || '图片已加载'}</span>
-        <button className="upload-bar-btn" onClick={() => fileRef.current?.click()}>更换图片</button>
+        <span className="upload-bar-name">{fileName || t('upload.loaded')}</span>
+        <button className="upload-bar-btn" onClick={() => fileRef.current?.click()}>{t('upload.change')}</button>
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
       </div>
     )
@@ -40,8 +42,8 @@ export default function ImageUploader({ onImageLoaded, hasImage }: {
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
       />
       <div className="upload-icon">📁</div>
-      <div className="upload-text">拖拽图片到这里，或点击选择</div>
-      <div className="upload-hint">支持 PNG / JPG / WebP</div>
+      <div className="upload-text">{t('upload.dropText')}</div>
+      <div className="upload-hint">{t('upload.dropHint')}</div>
     </div>
   )
 }

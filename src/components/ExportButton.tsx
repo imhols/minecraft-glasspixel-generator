@@ -1,10 +1,12 @@
 import type { ProcessedImage } from '../core/imageProcessor'
 import { exportSchemV2, exportSchematic, downloadBlob } from '../core/schematicExporter'
+import { useLang } from '../i18n/LangContext'
 
 export default function ExportButton({ result, version }: {
   result: ProcessedImage | null
   version: string
 }) {
+  const { t } = useLang()
   if (!result) return null
 
   const handleExport = (format: 'schem' | 'schematic') => {
@@ -20,10 +22,10 @@ export default function ExportButton({ result, version }: {
   return (
     <div className="export-buttons">
       <button className="export-btn" onClick={() => handleExport('schem')}>
-        下载 .schem (Sponge)
+        {t('export.schem')}
       </button>
       <button className="export-btn" onClick={() => handleExport('schematic')}>
-        下载 .schematic (MCEdit)
+        {t('export.schematic')}
       </button>
     </div>
   )

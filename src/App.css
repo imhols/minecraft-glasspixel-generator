@@ -36,6 +36,13 @@ body {
   padding: 24px 0 32px;
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
 .header h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -44,6 +51,24 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.lang-btn {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lang-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .subtitle {

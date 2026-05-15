@@ -9,6 +9,7 @@ import ExportButton from './components/ExportButton'
 import ProgressBar from './components/ProgressBar'
 import HistoryPanel from './components/HistoryPanel'
 import type { HistoryEntry } from './components/HistoryPanel'
+import { useLang } from './i18n/LangContext'
 import './App.css'
 
 const MAX_HISTORY = 10
@@ -105,11 +106,16 @@ export default function App() {
     setHistory([])
   }, [])
 
+  const { t, toggleLang } = useLang()
+
   return (
     <div className="app">
       <header className="header">
-        <h1>Minecraft GlassPixel Generator</h1>
-        <p className="subtitle">Turn images into Minecraft pixel art, with stained glass layers to nail the colors.</p>
+        <div className="header-row">
+          <h1>{t('app.title')}</h1>
+          <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
+        </div>
+        <p className="subtitle">{t('app.subtitle')}</p>
       </header>
 
       <div className="main-layout">
