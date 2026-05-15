@@ -70,7 +70,7 @@ export function findClosestBlockRGB(r: number, g: number, b: number, palette: Pa
 
 export interface BlendResult {
   glasses: PaletteBlock[]
-  base: PaletteBlock
+  base: PaletteBlock | null
   color: [number, number, number]
 }
 
@@ -180,18 +180,27 @@ export function findBestBlend(
   basePalette: PaletteBlock[],
   glassPalette: PaletteBlock[],
   glassLayers: number,
+  pureGlass?: boolean,
 ): BlendResult {
-  const base = findClosestBlockRGB(tr, tg, tb, basePalette)
+  const base = pureGlass ? null : findClosestBlockRGB(tr, tg, tb, basePalette)
 
   if (glassLayers === 0) {
-    return { glasses: [], base, color: [base.color[0], base.color[1], base.color[2]] }
+    if (pureGlass) return { glasses: [], base: null, color: [0, 0, 0] }
+    return { glasses: [], base: base!, color: [base!.color[0], base!.color[1], base!.color[2]] }
   }
 
   const layers = Math.min(glassLayers, 4)
   const w = getGlassWeights(layers)
-  const bw = w[layers]
-  const bc = base.color
-  const rr = tr - bc[0] * bw, rg = tg - bc[1] * bw, rb = tb - bc[2] * bw
+
+  let rr: number, rg: number, rb: number
+  if (pureGlass) {
+    rr = tr; rg = tg; rb = tb
+  } else {
+    const bw = w[layers]
+    const bc = base!.color
+    rr = tr - bc[0] * bw; rg = tg - bc[1] * bw; rb = tb - bc[2] * bw
+  }
+
   const wg = getWg(glassPalette)
 
   let glasses: PaletteBlock[]

@@ -47,8 +47,9 @@ export async function processImageMultiLayer(
   glassPalette: PaletteBlock[],
   glassLayers: number,
   onProgress?: (pct: number) => void,
+  pureGlass?: boolean,
 ): Promise<ProcessedImage> {
-  return processImageBase(img, targetWidth, targetHeight, basePalette, glassLayers, [], glassPalette, onProgress)
+  return processImageBase(img, targetWidth, targetHeight, basePalette, glassLayers, [], glassPalette, onProgress, pureGlass)
 }
 
 async function processImageBase(
@@ -60,6 +61,7 @@ async function processImageBase(
   _unused: PaletteBlock[],
   glassPalette: PaletteBlock[],
   onProgress?: (pct: number) => void,
+  pureGlass?: boolean,
 ): Promise<ProcessedImage> {
   const canvas = document.createElement('canvas')
   canvas.width = targetWidth
@@ -98,11 +100,11 @@ async function processImageBase(
       aRow.push(a < 128)
 
       if (multiLayer) {
-        const res = findBestBlend(r, g, b, palette, glassPalette, glassLayers)
+        const res = findBestBlend(r, g, b, palette, glassPalette, glassLayers, pureGlass)
         row.push(res.color)
         bRow.push(res.base)
         for (let l = 0; l < glassLayers; l++) glassGrids[l][y][x] = res.glasses[l]
-        usedBlocks.set(res.base.id, (usedBlocks.get(res.base.id) || 0) + 1)
+        if (res.base) usedBlocks.set(res.base.id, (usedBlocks.get(res.base.id) || 0) + 1)
         for (const gl of res.glasses) usedBlocks.set(gl.id, (usedBlocks.get(gl.id) || 0) + 1)
       } else {
         const block = findClosestBlockRGB(r, g, b, palette)

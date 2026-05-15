@@ -22,7 +22,7 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [history, setHistory] = useState<HistoryEntry[]>([])
-  const lastParams = useRef({ glassLayers: 0, pureGlass: false })
+  const lastParams = useRef({ glassLayers: 0 })
 
   const handleImageLoaded = useCallback((file: File) => {
     setSourceFile(file)
@@ -39,12 +39,11 @@ export default function App() {
       const widthInput = document.getElementById('width-input') as HTMLInputElement
       const glassSelect = document.getElementById('glass-layers') as HTMLSelectElement
       const pureGlassCheck = document.getElementById('pure-glass') as HTMLInputElement
-
       const v = sel?.value || '1.21'
       const w = parseInt(widthInput?.value || '64')
       const glassLayers = parseInt(glassSelect?.value || '0')
       const pureGlass = pureGlassCheck?.checked || false
-      lastParams.current = { glassLayers, pureGlass }
+      lastParams.current = { glassLayers }
 
       setVersion(v)
       setProgress(2)
@@ -58,24 +57,11 @@ export default function App() {
         const glassPalette = getGlassBlocks(v)
         res = await processImageMultiLayer(img, w, h, basePalette, glassPalette, glassLayers, pct => {
           setProgress(5 + Math.round(pct * 90))
-        })
+        }, pureGlass)
       } else {
         res = await processImage(img, w, h, basePalette, pct => {
           setProgress(5 + Math.round(pct * 90))
         })
-      }
-
-      if (pureGlass && res.glassGrids) {
-        for (let z = 0; z < res.height; z++) {
-          for (let x = 0; x < res.width; x++) {
-            res.blockGrid[z][x] = null
-          }
-        }
-        const glassOnlyBlocks = new Map<string, number>()
-        for (const g of res.glassGrids.flat(2)) {
-          if (g) glassOnlyBlocks.set(g.id, (glassOnlyBlocks.get(g.id) || 0) + 1)
-        }
-        res.usedBlocks = glassOnlyBlocks
       }
 
       setProgress(100)
@@ -137,7 +123,7 @@ export default function App() {
         <aside className="sidebar">
           <ConfigPanel onConvert={handleConvert} loading={loading} hasImage={!!sourceFile} />
           <HistoryPanel entries={history} onSelect={handleHistorySelect} onDelete={handleHistoryDelete} onClear={handleHistoryClear} />
-          <ExportButton result={result} version={version} pureGlass={lastParams.current.pureGlass} />
+          <ExportButton result={result} version={version} />
         </aside>
 
         <main className="content">
