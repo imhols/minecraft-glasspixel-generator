@@ -109,7 +109,6 @@ const BLOCKS: PaletteBlock[] = [
   { name: 'Green Concrete', id: 'minecraft:green_concrete', color: [53, 70, 27], versions: ['1.13.2', '1.16.5', '1.17.1', '1.19', '1.20', '1.21'] },
   { name: 'Green Terracotta', id: 'minecraft:green_terracotta', color: [76, 83, 42], versions: ['1.12.2', '1.13.2', '1.16.5', '1.17.1', '1.19', '1.20', '1.21'] },
   { name: 'Green Stained Glass', id: 'minecraft:green_stained_glass', color: [57, 83, 36], versions: ['1.12.2', '1.13.2', '1.16.5', '1.17.1', '1.19', '1.20', '1.21'], transparent: true },
-  { name: 'Cactus Block', id: 'minecraft:cactus', color: [74, 103, 37], versions: ['1.12.2', '1.13.2', '1.16.5', '1.17.1', '1.19', '1.20', '1.21'] },
   { name: 'Moss Block', id: 'minecraft:moss_block', color: [62, 107, 42], versions: ['1.17.1', '1.19', '1.20', '1.21'] },
 
   // Cyan
