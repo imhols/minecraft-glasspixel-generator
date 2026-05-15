@@ -2,22 +2,23 @@ import type { ProcessedImage } from '../core/imageProcessor'
 import { exportSchemV2, exportSchematic, exportLitematic, downloadBlob } from '../core/schematicExporter'
 import { useLang } from '../i18n/LangContext'
 
-export default function ExportButton({ result, version }: {
+export default function ExportButton({ result, version, pureGlass }: {
   result: ProcessedImage | null
   version: string
+  pureGlass?: boolean
 }) {
   const { t } = useLang()
   if (!result) return null
 
   const handleExport = (format: 'schem' | 'schematic' | 'litematic') => {
     if (format === 'schem') {
-      const data = exportSchemV2(result, version)
+      const data = exportSchemV2(result, version, pureGlass)
       downloadBlob(data, `glasspixel_${result.width}x${result.height}.schem`)
     } else if (format === 'schematic') {
-      const data = exportSchematic(result, version)
+      const data = exportSchematic(result, version, pureGlass)
       downloadBlob(data, `glasspixel_${result.width}x${result.height}.schematic`)
     } else {
-      const data = exportLitematic(result, version)
+      const data = exportLitematic(result, version, pureGlass)
       downloadBlob(data, `glasspixel_${result.width}x${result.height}.litematic`)
     }
   }

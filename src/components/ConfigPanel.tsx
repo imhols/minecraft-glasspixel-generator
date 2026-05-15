@@ -32,6 +32,13 @@ export default function ConfigPanel({ onConvert, loading, hasImage }: {
         <span className="hint">{t('config.glassHint')}</span>
       </div>
 
+      <div className="config-group checkbox-group">
+        <label className="checkbox-label">
+          <input id="pure-glass" type="checkbox" />
+          {t('config.pureGlass')}
+        </label>
+      </div>
+
       <button
         className="convert-btn"
         onClick={onConvert}

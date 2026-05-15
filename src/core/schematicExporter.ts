@@ -26,6 +26,7 @@ function getVersionKey(version: string): string {
 export function exportSchemV2(
   result: ProcessedImage,
   version: string,
+  pureGlass?: boolean,
 ): Uint8Array {
   const width = result.width
   const glassLayers = result.glassLayers || 0
@@ -58,9 +59,9 @@ export function exportSchemV2(
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
         if (y === 0) {
-          // y=0: base blocks
+          // y=0: base blocks (air when pure glass)
           const block = result.blockGrid[z][x]
-          blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+          blockData[idx] = (!pureGlass && block) ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
         } else if (y % 2 === 1) {
           // odd y: glass layers (y=1=bottom, y=3=next, ...)
           const glassIndex = (y - 1) / 2
@@ -87,6 +88,7 @@ export function exportSchemV2(
 export function exportLitematic(
   result: ProcessedImage,
   _version: string,
+  pureGlass?: boolean,
 ): Uint8Array {
   const width = result.width
   const glassLayers = result.glassLayers || 0
@@ -120,7 +122,7 @@ export function exportLitematic(
       for (let x = 0; x < width; x++) {
         if (y === 0) {
           const block = result.blockGrid[z][x]
-          blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+          blockData[idx] = (!pureGlass && block) ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
         } else if (y % 2 === 1) {
           const glassIndex = (y - 1) / 2
           const layer = glassLayers - 1 - glassIndex
@@ -233,6 +235,7 @@ function getLegacyBlockId(blockId: string): [number, number] {
 export function exportSchematic(
   result: ProcessedImage,
   _version: string,
+  pureGlass?: boolean,
 ): Uint8Array {
   const width = result.width
   const height = 1
@@ -247,7 +250,7 @@ export function exportSchematic(
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
         const block = result.blockGrid[z][x]
-        if (block) {
+        if (block && !pureGlass) {
           const [id, data] = getLegacyBlockId(block.id)
           blocks[idx] = id
           blockData[idx] = data
