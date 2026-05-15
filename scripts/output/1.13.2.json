@@ -1,0 +1,3575 @@
+{
+  "spruce_leaves": {
+    "rgb": [
+      116,
+      116,
+      116
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "turtle_egg_slightly_cracked": {
+    "rgb": [
+      218,
+      215,
+      178
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pumpkin": {
+    "rgb": [
+      195,
+      120,
+      23
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "water_overlay": {
+    "rgb": [
+      242,
+      242,
+      242
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "yellow_glazed_terracotta": {
+    "rgb": [
+      234,
+      192,
+      89
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "item_frame": {
+    "rgb": [
+      118,
+      68,
+      45
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "white_wool": {
+    "rgb": [
+      234,
+      236,
+      237
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "black_concrete": {
+    "rgb": [
+      8,
+      10,
+      15
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_mushroom": {
+    "rgb": [
+      195,
+      54,
+      56
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lapis_block": {
+    "rgb": [
+      39,
+      67,
+      138
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "peony": {
+    "rgb": [
+      94,
+      112,
+      101
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "iron_trapdoor": {
+    "rgb": [
+      200,
+      200,
+      200
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "cauldron": {
+    "rgb": [
+      59,
+      59,
+      59
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "hay_block": {
+    "rgb": [
+      164,
+      129,
+      17
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "wheat_stage4": {
+    "rgb": [
+      46,
+      128,
+      8
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tripwire_hook": {
+    "rgb": [
+      139,
+      129,
+      114
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "cyan_glazed_terracotta": {
+    "rgb": [
+      52,
+      119,
+      125
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cut_red_sandstone": {
+    "rgb": [
+      168,
+      86,
+      31
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_stained_glass": {
+    "rgb": [
+      127,
+      63,
+      178
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "birch_sapling": {
+    "rgb": [
+      119,
+      151,
+      85
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_gray_terracotta": {
+    "rgb": [
+      135,
+      107,
+      98
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "spruce_planks": {
+    "rgb": [
+      104,
+      78,
+      47
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dropper": {
+    "rgb": [
+      102,
+      102,
+      102
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cyan_stained_glass": {
+    "rgb": [
+      76,
+      127,
+      153
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "red_glazed_terracotta": {
+    "rgb": [
+      182,
+      60,
+      53
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "chiseled_red_sandstone": {
+    "rgb": [
+      162,
+      83,
+      28
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "ladder": {
+    "rgb": [
+      121,
+      95,
+      53
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "stone_bricks": {
+    "rgb": [
+      122,
+      122,
+      122
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "stripped_jungle_log": {
+    "rgb": [
+      171,
+      134,
+      85
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "green_stained_glass": {
+    "rgb": [
+      102,
+      127,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lever": {
+    "rgb": [
+      106,
+      89,
+      64
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "daylight_detector": {
+    "rgb": [
+      101,
+      93,
+      81
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_shulker_box": {
+    "rgb": [
+      140,
+      31,
+      30
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "kelp": {
+    "rgb": [
+      87,
+      140,
+      45
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "poppy": {
+    "rgb": [
+      101,
+      58,
+      4
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pink_shulker_box": {
+    "rgb": [
+      230,
+      122,
+      158
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cyan_terracotta": {
+    "rgb": [
+      87,
+      91,
+      91
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "wheat_stage7": {
+    "rgb": [
+      87,
+      102,
+      8
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "brain_coral": {
+    "rgb": [
+      198,
+      85,
+      152
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "jungle_log": {
+    "rgb": [
+      121,
+      94,
+      50
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "piston_top_sticky": {
+    "rgb": [
+      142,
+      146,
+      100
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "green_wool": {
+    "rgb": [
+      85,
+      110,
+      28
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "chipped_anvil": {
+    "rgb": [
+      64,
+      61,
+      61
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tripwire": {
+    "rgb": [
+      129,
+      129,
+      129
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "sand": {
+    "rgb": [
+      219,
+      211,
+      160
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "sunflower": {
+    "rgb": [
+      108,
+      131,
+      41
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "sea_pickle": {
+    "rgb": [
+      90,
+      97,
+      40
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "blue_ice": {
+    "rgb": [
+      116,
+      168,
+      253
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_door": {
+    "rgb": [
+      159,
+      91,
+      57
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "water": {
+    "rgb": [
+      173,
+      173,
+      173
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "bone_block": {
+    "rgb": [
+      216,
+      211,
+      190
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "oak_trapdoor": {
+    "rgb": [
+      127,
+      93,
+      46
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "oak_log": {
+    "rgb": [
+      129,
+      103,
+      64
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dirt": {
+    "rgb": [
+      134,
+      96,
+      67
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jungle_leaves": {
+    "rgb": [
+      145,
+      143,
+      134
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pink_concrete_powder": {
+    "rgb": [
+      229,
+      153,
+      181
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_shulker_box": {
+    "rgb": [
+      49,
+      164,
+      212
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_glazed_terracotta": {
+    "rgb": [
+      110,
+      48,
+      152
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "nether_wart_block": {
+    "rgb": [
+      117,
+      6,
+      7
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "mossy_stone_bricks": {
+    "rgb": [
+      115,
+      119,
+      106
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "obsidian": {
+    "rgb": [
+      20,
+      18,
+      30
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_wool": {
+    "rgb": [
+      53,
+      57,
+      157
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "black_wool": {
+    "rgb": [
+      21,
+      21,
+      26
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jungle_trapdoor": {
+    "rgb": [
+      153,
+      110,
+      77
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lava": {
+    "rgb": [
+      210,
+      91,
+      19
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "quartz_pillar": {
+    "rgb": [
+      233,
+      229,
+      221
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "nether_quartz_ore": {
+    "rgb": [
+      125,
+      85,
+      80
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "note_block": {
+    "rgb": [
+      101,
+      68,
+      51
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "spruce_trapdoor": {
+    "rgb": [
+      100,
+      76,
+      49
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "podzol": {
+    "rgb": [
+      107,
+      76,
+      43
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "observer": {
+    "rgb": [
+      83,
+      82,
+      82
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purpur_pillar": {
+    "rgb": [
+      171,
+      127,
+      171
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_concrete": {
+    "rgb": [
+      100,
+      32,
+      156
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "rose_bush": {
+    "rgb": [
+      93,
+      63,
+      6
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pink_wool": {
+    "rgb": [
+      238,
+      141,
+      172
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "oak_door": {
+    "rgb": [
+      135,
+      103,
+      52
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "allium": {
+    "rgb": [
+      178,
+      141,
+      211
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lime_concrete": {
+    "rgb": [
+      94,
+      169,
+      25
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_log": {
+    "rgb": [
+      130,
+      95,
+      77
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lime_terracotta": {
+    "rgb": [
+      104,
+      118,
+      53
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cyan_stained_glass_pane": {
+    "rgb": [
+      74,
+      123,
+      147
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tube_coral_block": {
+    "rgb": [
+      49,
+      87,
+      207
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_wool": {
+    "rgb": [
+      122,
+      42,
+      173
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jack_o_lantern": {
+    "rgb": [
+      185,
+      133,
+      28
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_stained_glass": {
+    "rgb": [
+      102,
+      153,
+      216
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "grass_block": {
+    "rgb": [
+      141,
+      125,
+      103
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "stripped_oak_log": {
+    "rgb": [
+      171,
+      139,
+      84
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "command_block": {
+    "rgb": [
+      168,
+      130,
+      108
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_gray_wool": {
+    "rgb": [
+      142,
+      142,
+      135
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cobblestone": {
+    "rgb": [
+      123,
+      123,
+      123
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_sandstone": {
+    "rgb": [
+      165,
+      84,
+      29
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "end_stone_bricks": {
+    "rgb": [
+      226,
+      231,
+      171
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cyan_concrete_powder": {
+    "rgb": [
+      37,
+      148,
+      157
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_gray_stained_glass_pane": {
+    "rgb": [
+      147,
+      147,
+      147
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "comparator": {
+    "rgb": [
+      156,
+      151,
+      150
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magenta_glazed_terracotta": {
+    "rgb": [
+      208,
+      100,
+      192
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "gray_stained_glass_pane": {
+    "rgb": [
+      74,
+      74,
+      74
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dark_oak_sapling": {
+    "rgb": [
+      57,
+      86,
+      28
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "brewing_stand": {
+    "rgb": [
+      116,
+      105,
+      95
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "chain_command_block": {
+    "rgb": [
+      128,
+      155,
+      144
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "grass_path": {
+    "rgb": [
+      146,
+      116,
+      71
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "red_wool": {
+    "rgb": [
+      161,
+      39,
+      35
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "oak_leaves": {
+    "rgb": [
+      135,
+      135,
+      135
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "hopper": {
+    "rgb": [
+      62,
+      62,
+      62
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "lilac": {
+    "rgb": [
+      146,
+      149,
+      136
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "diamond_ore": {
+    "rgb": [
+      129,
+      140,
+      143
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "redstone_ore": {
+    "rgb": [
+      133,
+      107,
+      107
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "structure_block_load": {
+    "rgb": [
+      69,
+      58,
+      71
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_sand": {
+    "rgb": [
+      169,
+      88,
+      33
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "gray_stained_glass": {
+    "rgb": [
+      76,
+      76,
+      76
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "purple_terracotta": {
+    "rgb": [
+      118,
+      70,
+      86
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "flower_pot": {
+    "rgb": [
+      119,
+      66,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_stained_glass_pane": {
+    "rgb": [
+      246,
+      246,
+      246
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dark_prismarine": {
+    "rgb": [
+      60,
+      88,
+      75
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "glowstone": {
+    "rgb": [
+      144,
+      118,
+      70
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "mycelium": {
+    "rgb": [
+      113,
+      94,
+      90
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cactus": {
+    "rgb": [
+      63,
+      129,
+      57
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dried_kelp": {
+    "rgb": [
+      46,
+      56,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_stained_glass": {
+    "rgb": [
+      216,
+      127,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "repeating_command_block": {
+    "rgb": [
+      123,
+      106,
+      168
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "stripped_spruce_log": {
+    "rgb": [
+      115,
+      90,
+      52
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "gray_shulker_box": {
+    "rgb": [
+      55,
+      59,
+      62
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "chiseled_sandstone": {
+    "rgb": [
+      216,
+      208,
+      155
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cake": {
+    "rgb": [
+      182,
+      124,
+      96
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "seagrass": {
+    "rgb": [
+      51,
+      127,
+      8
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "large_fern": {
+    "rgb": [
+      125,
+      125,
+      125
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "damaged_anvil": {
+    "rgb": [
+      64,
+      61,
+      61
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "yellow_wool": {
+    "rgb": [
+      249,
+      198,
+      40
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "crafting_table": {
+    "rgb": [
+      114,
+      87,
+      56
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "white_shulker_box": {
+    "rgb": [
+      216,
+      221,
+      221
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jungle_planks": {
+    "rgb": [
+      154,
+      110,
+      77
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "pink_stained_glass_pane": {
+    "rgb": [
+      233,
+      123,
+      160
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "farmland": {
+    "rgb": [
+      115,
+      76,
+      45
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "polished_diorite": {
+    "rgb": [
+      183,
+      183,
+      186
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "iron_door": {
+    "rgb": [
+      176,
+      176,
+      176
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "stripped_acacia_log": {
+    "rgb": [
+      171,
+      93,
+      60
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jungle_door": {
+    "rgb": [
+      154,
+      113,
+      82
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_blue_stained_glass_pane": {
+    "rgb": [
+      98,
+      147,
+      209
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "glass": {
+    "rgb": [
+      218,
+      241,
+      244
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "beetroots_stage3": {
+    "rgb": [
+      81,
+      113,
+      54
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "red_stained_glass": {
+    "rgb": [
+      153,
+      51,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "nether_bricks": {
+    "rgb": [
+      45,
+      23,
+      27
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "horn_coral": {
+    "rgb": [
+      209,
+      186,
+      63
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "chorus_flower": {
+    "rgb": [
+      116,
+      84,
+      115
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "polished_granite": {
+    "rgb": [
+      159,
+      115,
+      98
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_concrete": {
+    "rgb": [
+      45,
+      47,
+      143
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "detector_rail": {
+    "rgb": [
+      120,
+      101,
+      89
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "sea_lantern": {
+    "rgb": [
+      172,
+      200,
+      190
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_gray_glazed_terracotta": {
+    "rgb": [
+      144,
+      166,
+      168
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purpur_block": {
+    "rgb": [
+      166,
+      122,
+      166
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lime_wool": {
+    "rgb": [
+      112,
+      185,
+      26
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "white_concrete": {
+    "rgb": [
+      207,
+      213,
+      214
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "redstone_torch": {
+    "rgb": [
+      131,
+      70,
+      40
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "brown_terracotta": {
+    "rgb": [
+      77,
+      51,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "bubble_coral_fan": {
+    "rgb": [
+      160,
+      33,
+      159
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "blue_concrete_powder": {
+    "rgb": [
+      70,
+      73,
+      167
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "clay": {
+    "rgb": [
+      159,
+      164,
+      177
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_sapling": {
+    "rgb": [
+      115,
+      115,
+      20
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "stone_slab": {
+    "rgb": [
+      163,
+      163,
+      163
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "snow": {
+    "rgb": [
+      240,
+      251,
+      251
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_shulker_box": {
+    "rgb": [
+      106,
+      66,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_stained_glass": {
+    "rgb": [
+      102,
+      76,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "melon": {
+    "rgb": [
+      146,
+      150,
+      37
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_bush": {
+    "rgb": [
+      124,
+      80,
+      25
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "fern": {
+    "rgb": [
+      120,
+      120,
+      120
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_tulip": {
+    "rgb": [
+      95,
+      153,
+      66
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "black_shulker_box": {
+    "rgb": [
+      25,
+      25,
+      30
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "wheat_stage5": {
+    "rgb": [
+      66,
+      123,
+      8
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lime_shulker_box": {
+    "rgb": [
+      100,
+      173,
+      23
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "oak_planks": {
+    "rgb": [
+      157,
+      128,
+      79
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dark_oak_log": {
+    "rgb": [
+      65,
+      52,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "yellow_concrete": {
+    "rgb": [
+      241,
+      175,
+      21
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "green_stained_glass_pane": {
+    "rgb": [
+      98,
+      123,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "fire_coral_fan": {
+    "rgb": [
+      159,
+      35,
+      46
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "bubble_coral_block": {
+    "rgb": [
+      165,
+      26,
+      162
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "debug2": {
+    "rgb": [
+      124,
+      120,
+      118
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "anvil": {
+    "rgb": [
+      65,
+      63,
+      63
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "gray_wool": {
+    "rgb": [
+      63,
+      68,
+      72
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_concrete": {
+    "rgb": [
+      36,
+      137,
+      199
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "tall_grass": {
+    "rgb": [
+      144,
+      144,
+      144
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "quartz_block": {
+    "rgb": [
+      235,
+      231,
+      224
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_mushroom_block": {
+    "rgb": [
+      173,
+      139,
+      102
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cobweb": {
+    "rgb": [
+      220,
+      220,
+      220
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tall_seagrass": {
+    "rgb": [
+      52,
+      128,
+      9
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pink_tulip": {
+    "rgb": [
+      102,
+      150,
+      73
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "redstone_lamp": {
+    "rgb": [
+      70,
+      43,
+      27
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "iron_bars": {
+    "rgb": [
+      110,
+      108,
+      106
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "cyan_shulker_box": {
+    "rgb": [
+      20,
+      121,
+      135
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_horn_coral_fan": {
+    "rgb": [
+      134,
+      126,
+      121
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "furnace": {
+    "rgb": [
+      103,
+      97,
+      93
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "granite": {
+    "rgb": [
+      153,
+      114,
+      99
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "wet_sponge": {
+    "rgb": [
+      160,
+      159,
+      63
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_glazed_terracotta": {
+    "rgb": [
+      155,
+      147,
+      92
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_horn_coral_block": {
+    "rgb": [
+      134,
+      126,
+      122
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_tulip": {
+    "rgb": [
+      96,
+      135,
+      32
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "grass_block_side_overlay": {
+    "rgb": [
+      143,
+      143,
+      143
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "gold_ore": {
+    "rgb": [
+      143,
+      140,
+      125
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "chorus_plant": {
+    "rgb": [
+      96,
+      60,
+      96
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_stained_glass_pane": {
+    "rgb": [
+      147,
+      49,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "conduit": {
+    "rgb": [
+      160,
+      140,
+      113
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "magenta_shulker_box": {
+    "rgb": [
+      174,
+      54,
+      164
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_stained_glass_pane": {
+    "rgb": [
+      123,
+      61,
+      171
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "kelp_plant": {
+    "rgb": [
+      87,
+      130,
+      43
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "green_terracotta": {
+    "rgb": [
+      76,
+      83,
+      42
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "fire_coral": {
+    "rgb": [
+      167,
+      38,
+      47
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dead_brain_coral": {
+    "rgb": [
+      134,
+      125,
+      121
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "spruce_door": {
+    "rgb": [
+      97,
+      76,
+      50
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "tube_coral_fan": {
+    "rgb": [
+      51,
+      92,
+      209
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "polished_andesite": {
+    "rgb": [
+      133,
+      133,
+      135
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "iron_block": {
+    "rgb": [
+      219,
+      219,
+      219
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "wheat_stage6": {
+    "rgb": [
+      80,
+      119,
+      7
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "orange_shulker_box": {
+    "rgb": [
+      234,
+      106,
+      9
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "emerald_block": {
+    "rgb": [
+      81,
+      217,
+      117
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "sandstone": {
+    "rgb": [
+      216,
+      208,
+      155
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_glazed_terracotta": {
+    "rgb": [
+      47,
+      65,
+      139
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "horn_coral_fan": {
+    "rgb": [
+      206,
+      183,
+      61
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "chiseled_stone_bricks": {
+    "rgb": [
+      119,
+      119,
+      119
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_concrete_powder": {
+    "rgb": [
+      168,
+      54,
+      51
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magenta_terracotta": {
+    "rgb": [
+      150,
+      88,
+      109
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magma_block": {
+    "rgb": [
+      135,
+      66,
+      26
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_stained_glass_pane": {
+    "rgb": [
+      49,
+      74,
+      171
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "orange_stained_glass_pane": {
+    "rgb": [
+      209,
+      123,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "redstone_dust_line1": {
+    "rgb": [
+      240,
+      240,
+      240
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "prismarine": {
+    "rgb": [
+      100,
+      152,
+      142
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "piston": {
+    "rgb": [
+      113,
+      106,
+      94
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "black_stained_glass_pane": {
+    "rgb": [
+      24,
+      24,
+      24
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "orange_concrete_powder": {
+    "rgb": [
+      227,
+      132,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_planks": {
+    "rgb": [
+      169,
+      92,
+      51
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "structure_block_corner": {
+    "rgb": [
+      68,
+      58,
+      70
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "grass": {
+    "rgb": [
+      136,
+      136,
+      136
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "birch_log": {
+    "rgb": [
+      196,
+      186,
+      162
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "black_concrete_powder": {
+    "rgb": [
+      25,
+      27,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_concrete_powder": {
+    "rgb": [
+      74,
+      181,
+      213
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "diorite": {
+    "rgb": [
+      180,
+      180,
+      183
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cyan_wool": {
+    "rgb": [
+      21,
+      138,
+      145
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magenta_wool": {
+    "rgb": [
+      190,
+      69,
+      180
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "birch_door": {
+    "rgb": [
+      212,
+      202,
+      160
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "gravel": {
+    "rgb": [
+      127,
+      124,
+      123
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "mossy_cobblestone": {
+    "rgb": [
+      104,
+      121,
+      104
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "turtle_egg_very_cracked": {
+    "rgb": [
+      208,
+      204,
+      165
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "oxeye_daisy": {
+    "rgb": [
+      176,
+      198,
+      139
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "gray_concrete": {
+    "rgb": [
+      55,
+      58,
+      62
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "soul_sand": {
+    "rgb": [
+      85,
+      64,
+      52
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "stripped_dark_oak_log": {
+    "rgb": [
+      92,
+      73,
+      48
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "stripped_birch_log": {
+    "rgb": [
+      191,
+      169,
+      111
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_trapdoor": {
+    "rgb": [
+      157,
+      87,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "prismarine_bricks": {
+    "rgb": [
+      100,
+      160,
+      143
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "nether_portal": {
+    "rgb": [
+      90,
+      12,
+      193
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dead_bubble_coral_fan": {
+    "rgb": [
+      141,
+      135,
+      130
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "magenta_concrete": {
+    "rgb": [
+      169,
+      48,
+      159
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "sugar_cane": {
+    "rgb": [
+      149,
+      193,
+      101
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "chiseled_quartz_block": {
+    "rgb": [
+      232,
+      228,
+      220
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_brain_coral_fan": {
+    "rgb": [
+      133,
+      125,
+      121
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "rail": {
+    "rgb": [
+      121,
+      109,
+      89
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dead_brain_coral_block": {
+    "rgb": [
+      124,
+      118,
+      114
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_nether_bricks": {
+    "rgb": [
+      68,
+      4,
+      7
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_orchid": {
+    "rgb": [
+      38,
+      152,
+      138
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dead_horn_coral": {
+    "rgb": [
+      143,
+      135,
+      130
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "melon_stem": {
+    "rgb": [
+      147,
+      147,
+      147
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "bubble_coral": {
+    "rgb": [
+      161,
+      24,
+      160
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "farmland_moist": {
+    "rgb": [
+      75,
+      41,
+      14
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_concrete": {
+    "rgb": [
+      96,
+      60,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "pumpkin_stem": {
+    "rgb": [
+      147,
+      147,
+      147
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "structure_block_data": {
+    "rgb": [
+      79,
+      66,
+      81
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "yellow_terracotta": {
+    "rgb": [
+      186,
+      133,
+      35
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "end_portal_frame": {
+    "rgb": [
+      119,
+      139,
+      111
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": true
+  },
+  "brown_concrete_powder": {
+    "rgb": [
+      126,
+      85,
+      54
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lapis_ore": {
+    "rgb": [
+      102,
+      112,
+      135
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_terracotta": {
+    "rgb": [
+      162,
+      84,
+      38
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "spawner": {
+    "rgb": [
+      26,
+      40,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "brown_mushroom": {
+    "rgb": [
+      138,
+      106,
+      84
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "yellow_stained_glass_pane": {
+    "rgb": [
+      221,
+      221,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "gray_glazed_terracotta": {
+    "rgb": [
+      83,
+      90,
+      94
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dispenser": {
+    "rgb": [
+      102,
+      102,
+      102
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lime_glazed_terracotta": {
+    "rgb": [
+      163,
+      198,
+      55
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_glazed_terracotta": {
+    "rgb": [
+      95,
+      165,
+      209
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dark_oak_trapdoor": {
+    "rgb": [
+      75,
+      50,
+      23
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "powered_rail": {
+    "rgb": [
+      132,
+      108,
+      72
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "stone": {
+    "rgb": [
+      125,
+      125,
+      125
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_fire_coral_block": {
+    "rgb": [
+      132,
+      124,
+      120
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "coarse_dirt": {
+    "rgb": [
+      119,
+      86,
+      59
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dark_oak_door": {
+    "rgb": [
+      68,
+      46,
+      25
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cracked_stone_bricks": {
+    "rgb": [
+      119,
+      119,
+      119
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "debug": {
+    "rgb": [
+      133,
+      148,
+      153
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "azure_bluet": {
+    "rgb": [
+      162,
+      192,
+      139
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_gray_concrete_powder": {
+    "rgb": [
+      155,
+      155,
+      148
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "yellow_concrete_powder": {
+    "rgb": [
+      233,
+      199,
+      55
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "green_concrete_powder": {
+    "rgb": [
+      97,
+      119,
+      45
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_terracotta": {
+    "rgb": [
+      143,
+      61,
+      47
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_bubble_coral_block": {
+    "rgb": [
+      132,
+      124,
+      119
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_blue_terracotta": {
+    "rgb": [
+      113,
+      109,
+      138
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "gray_terracotta": {
+    "rgb": [
+      58,
+      42,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lime_concrete_powder": {
+    "rgb": [
+      125,
+      189,
+      42
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brain_coral_fan": {
+    "rgb": [
+      203,
+      84,
+      154
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "andesite": {
+    "rgb": [
+      131,
+      131,
+      131
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "sponge": {
+    "rgb": [
+      195,
+      196,
+      85
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_wool": {
+    "rgb": [
+      241,
+      118,
+      20
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "yellow_shulker_box": {
+    "rgb": [
+      248,
+      189,
+      29
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "spruce_log": {
+    "rgb": [
+      76,
+      55,
+      30
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "pink_stained_glass": {
+    "rgb": [
+      242,
+      127,
+      165
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_blue_wool": {
+    "rgb": [
+      58,
+      175,
+      217
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "carrots_stage3": {
+    "rgb": [
+      21,
+      128,
+      2
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tube_coral": {
+    "rgb": [
+      48,
+      83,
+      197
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "black_stained_glass": {
+    "rgb": [
+      25,
+      25,
+      25
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "birch_trapdoor": {
+    "rgb": [
+      207,
+      194,
+      157
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "light_gray_concrete": {
+    "rgb": [
+      125,
+      125,
+      115
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "beacon": {
+    "rgb": [
+      117,
+      221,
+      216
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dragon_egg": {
+    "rgb": [
+      13,
+      9,
+      16
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "yellow_stained_glass": {
+    "rgb": [
+      229,
+      229,
+      51
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "end_rod": {
+    "rgb": [
+      220,
+      198,
+      206
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "black_glazed_terracotta": {
+    "rgb": [
+      68,
+      30,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "iron_ore": {
+    "rgb": [
+      136,
+      130,
+      127
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "jungle_sapling": {
+    "rgb": [
+      49,
+      86,
+      19
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "coal_ore": {
+    "rgb": [
+      115,
+      115,
+      115
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dark_oak_planks": {
+    "rgb": [
+      61,
+      40,
+      18
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_bubble_coral": {
+    "rgb": [
+      133,
+      125,
+      121
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "structure_block_save": {
+    "rgb": [
+      86,
+      72,
+      88
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_fire_coral": {
+    "rgb": [
+      137,
+      128,
+      124
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "cyan_concrete": {
+    "rgb": [
+      21,
+      119,
+      136
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "pink_concrete": {
+    "rgb": [
+      214,
+      101,
+      143
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "repeater": {
+    "rgb": [
+      151,
+      147,
+      147
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "coal_block": {
+    "rgb": [
+      19,
+      19,
+      19
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "structure_block": {
+    "rgb": [
+      89,
+      74,
+      90
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "shulker_box": {
+    "rgb": [
+      139,
+      97,
+      139
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "torch": {
+    "rgb": [
+      130,
+      106,
+      58
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "green_shulker_box": {
+    "rgb": [
+      79,
+      101,
+      32
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lime_stained_glass_pane": {
+    "rgb": [
+      123,
+      197,
+      24
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "purple_concrete_powder": {
+    "rgb": [
+      132,
+      56,
+      178
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_tulip": {
+    "rgb": [
+      103,
+      135,
+      39
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "lime_stained_glass": {
+    "rgb": [
+      127,
+      204,
+      25
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "tnt": {
+    "rgb": [
+      157,
+      78,
+      56
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "lily_pad": {
+    "rgb": [
+      119,
+      119,
+      119
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "magenta_stained_glass_pane": {
+    "rgb": [
+      171,
+      74,
+      209
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dandelion": {
+    "rgb": [
+      108,
+      162,
+      1
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "end_stone": {
+    "rgb": [
+      221,
+      224,
+      165
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "netherrack": {
+    "rgb": [
+      111,
+      54,
+      53
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "terracotta": {
+    "rgb": [
+      151,
+      93,
+      67
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "end_portal_frame_eye": {
+    "rgb": [
+      40,
+      72,
+      67
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_terracotta": {
+    "rgb": [
+      210,
+      178,
+      161
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_tube_coral_fan": {
+    "rgb": [
+      128,
+      122,
+      118
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "wheat_stage3": {
+    "rgb": [
+      38,
+      140,
+      9
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "ice": {
+    "rgb": [
+      125,
+      173,
+      255
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "fire_coral_block": {
+    "rgb": [
+      164,
+      35,
+      47
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "carved_pumpkin": {
+    "rgb": [
+      142,
+      77,
+      13
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "turtle_egg": {
+    "rgb": [
+      228,
+      227,
+      192
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "pink_glazed_terracotta": {
+    "rgb": [
+      235,
+      155,
+      182
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_stained_glass": {
+    "rgb": [
+      51,
+      76,
+      178
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_gray_stained_glass": {
+    "rgb": [
+      153,
+      153,
+      153
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "bookshelf": {
+    "rgb": [
+      108,
+      88,
+      58
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "emerald_ore": {
+    "rgb": [
+      110,
+      129,
+      116
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "rail_corner": {
+    "rgb": [
+      120,
+      108,
+      87
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "light_gray_shulker_box": {
+    "rgb": [
+      124,
+      124,
+      115
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "cut_sandstone": {
+    "rgb": [
+      220,
+      212,
+      162
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "red_concrete": {
+    "rgb": [
+      142,
+      33,
+      33
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "pink_terracotta": {
+    "rgb": [
+      162,
+      78,
+      79
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "orange_concrete": {
+    "rgb": [
+      224,
+      97,
+      1
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_tube_coral_block": {
+    "rgb": [
+      130,
+      123,
+      120
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "purple_shulker_box": {
+    "rgb": [
+      103,
+      32,
+      156
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dead_tube_coral": {
+    "rgb": [
+      118,
+      111,
+      108
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "birch_leaves": {
+    "rgb": [
+      135,
+      135,
+      135
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "dead_fire_coral_fan": {
+    "rgb": [
+      125,
+      118,
+      115
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "redstone_dust_dot": {
+    "rgb": [
+      240,
+      240,
+      240
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "activator_rail": {
+    "rgb": [
+      104,
+      83,
+      71
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "gold_block": {
+    "rgb": [
+      249,
+      236,
+      79
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "oak_sapling": {
+    "rgb": [
+      72,
+      102,
+      38
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "redstone_block": {
+    "rgb": [
+      171,
+      28,
+      9
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "mushroom_stem": {
+    "rgb": [
+      208,
+      204,
+      194
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "bricks": {
+    "rgb": [
+      147,
+      100,
+      87
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brain_coral_block": {
+    "rgb": [
+      207,
+      91,
+      159
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "spruce_sapling": {
+    "rgb": [
+      51,
+      58,
+      34
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_glazed_terracotta": {
+    "rgb": [
+      189,
+      212,
+      203
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "acacia_leaves": {
+    "rgb": [
+      135,
+      135,
+      135
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "vine": {
+    "rgb": [
+      111,
+      111,
+      111
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "green_glazed_terracotta": {
+    "rgb": [
+      117,
+      142,
+      67
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "birch_planks": {
+    "rgb": [
+      196,
+      179,
+      123
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "horn_coral_block": {
+    "rgb": [
+      216,
+      200,
+      66
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "black_terracotta": {
+    "rgb": [
+      37,
+      23,
+      16
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "bedrock": {
+    "rgb": [
+      84,
+      84,
+      84
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "green_concrete": {
+    "rgb": [
+      73,
+      91,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "packed_ice": {
+    "rgb": [
+      165,
+      195,
+      245
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "potatoes_stage3": {
+    "rgb": [
+      35,
+      171,
+      36
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_stained_glass": {
+    "rgb": [
+      255,
+      255,
+      255
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "white_concrete_powder": {
+    "rgb": [
+      226,
+      227,
+      228
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "redstone_dust_line0": {
+    "rgb": [
+      240,
+      240,
+      240
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "glass_pane": {
+    "rgb": [
+      212,
+      240,
+      244
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "gray_concrete_powder": {
+    "rgb": [
+      77,
+      81,
+      85
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "diamond_block": {
+    "rgb": [
+      98,
+      219,
+      214
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_wool": {
+    "rgb": [
+      114,
+      72,
+      41
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magenta_concrete_powder": {
+    "rgb": [
+      193,
+      84,
+      185
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "dark_oak_leaves": {
+    "rgb": [
+      135,
+      135,
+      135
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "red_mushroom_block": {
+    "rgb": [
+      183,
+      38,
+      36
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_terracotta": {
+    "rgb": [
+      74,
+      60,
+      91
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "blue_shulker_box": {
+    "rgb": [
+      44,
+      46,
+      140
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "magenta_stained_glass": {
+    "rgb": [
+      178,
+      76,
+      216
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "slime_block": {
+    "rgb": [
+      121,
+      200,
+      101
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  },
+  "brown_glazed_terracotta": {
+    "rgb": [
+      120,
+      106,
+      86
+    ],
+    "fullyOpaque": true,
+    "anyTransparent": false
+  },
+  "brown_stained_glass_pane": {
+    "rgb": [
+      98,
+      74,
+      49
+    ],
+    "fullyOpaque": false,
+    "anyTransparent": true
+  }
+}
