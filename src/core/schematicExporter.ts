@@ -262,8 +262,8 @@ export function exportSchematic(
 }
 
 export function downloadBlob(data: Uint8Array, filename: string) {
-  const parts: BlobPart[] = [data.buffer as ArrayBuffer]
-  const blob = new Blob(parts, { type: 'application/octet-stream' })
+  const buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer
+  const blob = new Blob([buf], { type: 'application/octet-stream' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
