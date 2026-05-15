@@ -52,7 +52,8 @@ export function exportSchemV2(
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
-  const blockData = new Uint8Array(width * totalHeight * length)
+// 改后（避免索引 > 255 时截断）
+const blockData = new Array<number>(width * totalHeight * length).fill(0)
   let idx = 0
   for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {

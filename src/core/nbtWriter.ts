@@ -38,6 +38,24 @@ export class NbtWriter {
     return this
   }
 
+  // 加在 byteArray 方法后面
+varIntByteArray(indices: number[]): this {
+  const encoded: number[] = []
+  for (const v of indices) {
+    let value = v
+    do {
+      let byte = value & 0x7F
+      value >>>= 7
+      if (value !== 0) byte |= 0x80  // 设置续位
+      encoded.push(byte)
+    } while (value !== 0)
+  }
+  // TAG_Byte_Array: 长度是编码后的字节数，不是方块数
+  this.int(encoded.length)
+  for (const b of encoded) this.buf.push(b)
+  return this
+}
+
   longArray(v: bigint[]): this {
     this.int(v.length)
     for (const n of v) {
@@ -84,7 +102,8 @@ export function writeSchemNbt(
   length: number,
   palette: string[],
   paletteMap: Map<string, number>,
-  blockData: Uint8Array,
+// writeSchemNbt 的参数类型改为
+blockData: number[],   // 原来是 Uint8Array
   dataVersion: number,
 ): Uint8Array {
   const w = new NbtWriter()
@@ -131,8 +150,8 @@ export function writeSchemNbt(
   // BlockData
   const bd: number[] = []
   for (let i = 0; i < blockData.length; i++) bd.push(blockData[i])
-  w.tag(7, 'BlockData')
-  w.byteArray(bd)
+w.tag(7, 'BlockData')
+w.varIntByteArray(blockData)
 
   // Palette (compound with int entries)
   w.tag(10, 'Palette')
