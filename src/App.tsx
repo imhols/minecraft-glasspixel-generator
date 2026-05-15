@@ -1,0 +1,142 @@
+import { useState, useCallback, useRef, useEffect } from 'react'
+import type { ProcessedImage } from './core/imageProcessor'
+import { loadImage, processImage, processImageMultiLayer } from './core/imageProcessor'
+import { getBlocks, getGlassBlocks } from './data/palettes'
+import ImageUploader from './components/ImageUploader'
+import ConfigPanel from './components/ConfigPanel'
+import PreviewCanvas from './components/PreviewCanvas'
+import ExportButton from './components/ExportButton'
+import ProgressBar from './components/ProgressBar'
+import HistoryPanel from './components/HistoryPanel'
+import type { HistoryEntry } from './components/HistoryPanel'
+import './App.css'
+
+const MAX_HISTORY = 10
+
+export default function App() {
+  const [result, setResult] = useState<ProcessedImage | null>(null)
+  const [sourceFile, setSourceFile] = useState<File | null>(null)
+  const [originalUrl, setOriginalUrl] = useState('')
+  const [version, setVersion] = useState('1.21')
+  const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [history, setHistory] = useState<HistoryEntry[]>([])
+  const lastParams = useRef({ glassLayers: 0 })
+
+  const handleImageLoaded = useCallback((file: File) => {
+    setSourceFile(file)
+    setResult(null)
+    setOriginalUrl(URL.createObjectURL(file))
+  }, [])
+
+  const handleConvert = useCallback(async () => {
+    if (!sourceFile) return
+    setLoading(true)
+    setProgress(0)
+    try {
+      const sel = document.getElementById('version-select') as HTMLSelectElement
+      const widthInput = document.getElementById('width-input') as HTMLInputElement
+      const glassSelect = document.getElementById('glass-layers') as HTMLSelectElement
+
+      const v = sel?.value || '1.21'
+      const w = parseInt(widthInput?.value || '64')
+      const glassLayers = parseInt(glassSelect?.value || '0')
+      lastParams.current = { glassLayers }
+
+      setVersion(v)
+      setProgress(2)
+      const img = await loadImage(sourceFile)
+      setProgress(5)
+      const h = Math.round(w * (img.naturalHeight / img.naturalWidth))
+      const basePalette = getBlocks(v)
+      let res: ProcessedImage
+
+      if (glassLayers > 0) {
+        const glassPalette = getGlassBlocks(v)
+        res = await processImageMultiLayer(img, w, h, basePalette, glassPalette, glassLayers, pct => {
+          setProgress(5 + Math.round(pct * 90))
+        })
+      } else {
+        res = await processImage(img, w, h, basePalette, pct => {
+          setProgress(5 + Math.round(pct * 90))
+        })
+      }
+
+      setProgress(100)
+      setLoading(false)
+      setResult(res)
+    } catch {
+      setLoading(false)
+    }
+  }, [sourceFile])
+
+  // Save to history when result changes (skip when restoring from history)
+  const restoringRef = useRef(false)
+  const prevResultRef = useRef<ProcessedImage | null>(null)
+  useEffect(() => {
+    if (!result || result === prevResultRef.current || restoringRef.current) {
+      restoringRef.current = false
+      return
+    }
+    prevResultRef.current = result
+    const p = lastParams.current
+    const now = new Date()
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const entry: HistoryEntry = {
+      result, version, originalUrl,
+      glassLayers: p.glassLayers,
+      time,
+    }
+    setHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY))
+  }, [result, version, originalUrl])
+
+  const handleHistorySelect = useCallback((entry: HistoryEntry) => {
+    restoringRef.current = true
+    setResult(entry.result)
+    setVersion(entry.version)
+    setOriginalUrl(entry.originalUrl)
+  }, [])
+
+  const handleHistoryDelete = useCallback((i: number) => {
+    setHistory(prev => prev.filter((_, idx) => idx !== i))
+  }, [])
+
+  const handleHistoryClear = useCallback(() => {
+    setHistory([])
+  }, [])
+
+  return (
+    <div className="app">
+      <header className="header">
+        <h1>Minecraft GlassPixel Generator</h1>
+        <p className="subtitle">Turn images into Minecraft pixel art, with stained glass layers to nail the colors.</p>
+      </header>
+
+      <div className="main-layout">
+        <aside className="sidebar">
+          <ConfigPanel onConvert={handleConvert} loading={loading} hasImage={!!sourceFile} />
+          <HistoryPanel entries={history} onSelect={handleHistorySelect} onDelete={handleHistoryDelete} onClear={handleHistoryClear} />
+          <ExportButton result={result} version={version} />
+        </aside>
+
+        <main className="content">
+          <ImageUploader onImageLoaded={handleImageLoaded} hasImage={!!sourceFile} />
+          {result ? (
+            <div className="preview-wrapper">
+              <PreviewCanvas result={result} originalSrc={originalUrl} />
+              {loading && (
+                <div className="preview-overlay">
+                  <ProgressBar progress={progress} />
+                </div>
+              )}
+            </div>
+          ) : loading ? (
+            <div className="preview">
+              <ProgressBar progress={progress} />
+            </div>
+          ) : null}
+        </main>
+      </div>
+    </div>
+  )
+}
