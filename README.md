@@ -11,11 +11,14 @@
 
 <p align="center">
   <a href="https://imhols.github.io/minecraft-glasspixel-generator/" target="_blank">
-    <img src="https://img.shields.io/badge/在线体验-Online%20Demo-6366f1?style=flat-square&logo=githubpages&logoColor=white" alt="在线体验">
+    <img src="https://img.shields.io/badge/在线体验-Online%20Demo-6366f1?style=for-the-badge&logo=githubpages&logoColor=white" alt="在线体验">
   </a>
-  <img src="https://github.com/imhols/minecraft-glasspixel-generator/actions/workflows/deploy.yml/badge.svg?style=flat-square" alt="Deploy">
+</p>
+
+<p align="center">
+  <img src="https://github.com/imhols/minecraft-glasspixel-generator/actions/workflows/deploy.yml/badge.svg" alt="Deploy">
   <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-8b5cf6?style=flat-square" alt="License">
+    <img src="https://img.shields.io/badge/License-MIT-8b5cf6?style=flat" alt="License">
   </a>
 </p>
 
