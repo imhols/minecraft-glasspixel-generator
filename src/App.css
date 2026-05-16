@@ -57,7 +57,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .header h1 {
@@ -624,4 +625,101 @@ body {
 .stat-pct {
   color: var(--text3);
   font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 20px 16px;
+  }
+
+  .header {
+    padding: 8px 0 24px;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .header-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .subtitle {
+    font-size: 0.78rem;
+    margin-top: 6px;
+  }
+
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .top-buttons {
+    top: 10px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .lang-btn, .theme-btn {
+    font-size: 0.6rem;
+    padding: 3px 8px;
+  }
+
+  .theme-btn {
+    font-size: 0.85rem;
+    padding: 1px 6px;
+  }
+
+  .config-panel {
+    padding: 16px;
+  }
+
+  .upload-zone {
+    padding: 36px 16px;
+  }
+
+  .upload-text {
+    font-size: 0.85rem;
+  }
+
+  .preview {
+    padding: 18px;
+  }
+
+  .block-stats {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .history-list {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1rem;
+  }
+
+  .app {
+    padding: 16px 12px;
+  }
+
+  .config-group select,
+  .config-group input[type="number"] {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+
+  .convert-btn {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+
+  .export-btn {
+    font-size: 0.8rem;
+    padding: 12px;
+  }
+
+  .block-stats {
+    grid-template-columns: 1fr;
+  }
 }
