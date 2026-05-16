@@ -3,6 +3,7 @@ import type { ProcessedImage, DitherMode } from './core/imageProcessor'
 import { loadImage, processImage, processImageMultiLayer } from './core/imageProcessor'
 import { getBlocks, getGlassBlocks } from './data/palettes'
 import { filterSurvival } from './data/survival'
+import { applyColorOverrides } from './data/colorOverrides'
 import ImageUploader from './components/ImageUploader'
 import ConfigPanel from './components/ConfigPanel'
 import PreviewCanvas from './components/PreviewCanvas'
@@ -63,6 +64,7 @@ export default function App() {
       setProgress(5)
       const h = Math.round(w * (img.naturalHeight / img.naturalWidth))
       let basePalette = getBlocks(v)
+      basePalette = applyColorOverrides(basePalette)
       if (survivalFriendly) basePalette = filterSurvival(basePalette)
       let res: ProcessedImage
 
