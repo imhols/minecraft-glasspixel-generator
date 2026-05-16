@@ -51,6 +51,7 @@ export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, 
         <input id="glass-layers" type="range" min={0} max={4} step={1} defaultValue={3}
           onInput={e => { const el = document.getElementById('layers-value'); if (el) el.textContent = (e.target as HTMLInputElement).value }} />
         <span className="hint">{t('config.glassHint')}</span>
+        <span className="hint" style={{ marginTop: 2 }}>{t('config.glassHint2')}</span>
       </div>
 
       <div className="config-group checkbox-group">
