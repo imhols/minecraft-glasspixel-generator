@@ -2,11 +2,13 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import type { ProcessedImage } from '../core/imageProcessor'
 import { useLang } from '../i18n/LangContext'
 
-export default function PreviewCanvas({ result, originalSrc }: { result: ProcessedImage | null; originalSrc?: string }) {
+export default function PreviewCanvas({ result, originalSrc, originalW, originalH }: { result: ProcessedImage | null; originalSrc?: string; originalW?: number; originalH?: number }) {
   const { t } = useLang()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [dataUrl, setDataUrl] = useState('')
   const [showOrig, setShowOrig] = useState(false)
+  const [origDecoded, setOrigDecoded] = useState(false)
+  const blobUrlRef = useRef('')
 
   const onHold = useCallback(() => setShowOrig(true), [])
   const onRelease = useCallback(() => setShowOrig(false), [])
@@ -30,30 +32,43 @@ export default function PreviewCanvas({ result, originalSrc }: { result: Process
       }
     }
     ctx.putImageData(imageData, 0, 0)
-    setDataUrl(canvas.toDataURL('image/png'))
+    canvas.toBlob(blob => {
+      if (blob) {
+        URL.revokeObjectURL(blobUrlRef.current)
+        blobUrlRef.current = URL.createObjectURL(blob)
+        setDataUrl(blobUrlRef.current)
+      }
+    })
   }, [result])
 
   if (!result) return null
 
   const total = result.width * result.height
-  const displaySrc = showOrig && originalSrc ? originalSrc : dataUrl
-  const isOrig = showOrig && originalSrc
 
   return (
     <div className="preview">
-      <h3>{t('preview.title', { width: result.width, height: result.height, usedBlocks: result.usedBlocks.size })}</h3>
-      {originalSrc && <span className="hold-hint">{t('preview.holdHint')}</span>}
-      <img
-        src={displaySrc}
-        alt={isOrig ? t('preview.altOriginal') : t('preview.alt')}
-        className="preview-img"
-        style={isOrig ? { imageRendering: 'auto', maxHeight: 'none' } : undefined}
+      <h3>
+        {t('preview.title', { width: result.width, height: result.height, usedBlocks: result.usedBlocks.size })}
+        {originalW ? <span className="original-size">{t('preview.originalSize', { w: originalW!, h: originalH! })}</span> : null}
+        {originalSrc && <span className="hold-hint">{t('preview.holdHint')}</span>}
+      </h3>
+      <div className="preview-img-wrap"
         onMouseDown={onHold}
         onMouseUp={onRelease}
         onMouseLeave={onRelease}
         onTouchStart={onHold}
         onTouchEnd={onRelease}
-      />
+      >
+        {dataUrl && (
+          <img src={dataUrl} alt={t('preview.alt')} className="preview-img"
+            style={{ opacity: showOrig && origDecoded ? 0 : 1 }} />
+        )}
+        {originalSrc && (
+          <img src={originalSrc} alt={t('preview.altOriginal')} className="preview-img"
+            onLoad={() => setOrigDecoded(true)}
+            style={{ position: 'absolute', inset: 0, opacity: showOrig && origDecoded ? 1 : 0, imageRendering: 'auto', pointerEvents: 'none' }} />
+        )}
+      </div>
       <canvas ref={canvasRef} hidden />
       <div className="block-stats">
         {Array.from(result.usedBlocks.entries())

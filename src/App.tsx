@@ -19,6 +19,8 @@ export default function App() {
   const [result, setResult] = useState<ProcessedImage | null>(null)
   const [sourceFile, setSourceFile] = useState<File | null>(null)
   const [originalUrl, setOriginalUrl] = useState('')
+  const [originalW, setOriginalW] = useState(0)
+  const [originalH, setOriginalH] = useState(0)
   const [version, setVersion] = useState('1.21')
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -28,7 +30,11 @@ export default function App() {
   const handleImageLoaded = useCallback((file: File) => {
     setSourceFile(file)
     setResult(null)
-    setOriginalUrl(URL.createObjectURL(file))
+    const url = URL.createObjectURL(file)
+    setOriginalUrl(url)
+    const img = new Image()
+    img.onload = () => { setOriginalW(img.naturalWidth); setOriginalH(img.naturalHeight) }
+    img.src = url
   }, [])
 
   const handleConvert = useCallback(async () => {
@@ -146,7 +152,7 @@ export default function App() {
           <ImageUploader onImageLoaded={handleImageLoaded} hasImage={!!sourceFile} />
           {result ? (
             <div className="preview-wrapper">
-              <PreviewCanvas result={result} originalSrc={originalUrl} />
+              <PreviewCanvas result={result} originalSrc={originalUrl} originalW={originalW} originalH={originalH} />
               {loading && (
                 <div className="preview-overlay">
                   <ProgressBar progress={progress} />
