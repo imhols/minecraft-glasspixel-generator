@@ -2,6 +2,23 @@ import pako from 'pako'
 import { writeSchemNbt, writeLegacySchemNbt, writeLitematicNbt } from './nbtWriter'
 import type { ProcessedImage } from './imageProcessor'
 
+const GRAVITY_BLOCKS = new Set([
+  'minecraft:sand',
+  'minecraft:red_sand',
+  'minecraft:gravel',
+])
+
+const CORAL_BLOCKS = new Set([
+  'minecraft:brain_coral_block',
+  'minecraft:bubble_coral_block',
+  'minecraft:fire_coral_block',
+  'minecraft:horn_coral_block',
+  'minecraft:tube_coral_block',
+])
+
+const SUPPORT_BLOCK = 'minecraft:cobblestone'
+const WATER_BLOCK = 'minecraft:water'
+
 const DATA_VERSION: Record<string, number> = {
   '1.12.2': 1343,
   '1.13.2': 1631,
@@ -23,13 +40,46 @@ function getVersionKey(version: string): string {
   return '1.21'
 }
 
+type SupportGrid = string[][]  // '' = air, otherwise block ID
+
+function buildSupportGrid(
+  result: ProcessedImage,
+  supportGravity: boolean,
+  keepCoral: boolean,
+): SupportGrid {
+  const grid: SupportGrid = []
+  for (let z = 0; z < result.height; z++) {
+    const row: string[] = new Array(result.width).fill('')
+    for (let x = 0; x < result.width; x++) {
+      const block = result.blockGrid[z][x]
+      if (!block) continue
+      if (keepCoral && CORAL_BLOCKS.has(block.id)) {
+        row[x] = WATER_BLOCK
+      } else if (supportGravity && GRAVITY_BLOCKS.has(block.id)) {
+        row[x] = SUPPORT_BLOCK
+      }
+    }
+    grid.push(row)
+  }
+  return grid
+}
+
+function hasSupport(supportGrid: SupportGrid): boolean {
+  return supportGrid.some(r => r.some(c => c !== ''))
+}
+
 export function exportSchemV2(
   result: ProcessedImage,
   version: string,
+  supportGravity?: boolean,
+  keepCoral?: boolean,
 ): Uint8Array {
+  const supportGrid = buildSupportGrid(result, !!supportGravity, !!keepCoral)
   const width = result.width
   const glassLayers = result.glassLayers || 0
-  const totalHeight = glassLayers === 0 ? 1 : glassLayers * 2
+  const hasSupportLayer = hasSupport(supportGrid)
+  const extraY = hasSupportLayer ? 1 : 0
+  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
   const length = result.height
 
   const AIR = 'minecraft:air'
@@ -37,6 +87,8 @@ export function exportSchemV2(
   blockSet.add(AIR)
   for (let z = 0; z < length; z++) {
     for (let x = 0; x < width; x++) {
+      const sid = supportGrid[z][x]
+      if (sid) blockSet.add(sid)
       const block = result.blockGrid[z][x]
       if (block) blockSet.add(block.id)
       if (result.glassGrids) {
@@ -52,23 +104,26 @@ export function exportSchemV2(
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
-// 改后（避免索引 > 255 时截断）
 const blockData = new Array<number>(width * totalHeight * length).fill(0)
   let idx = 0
   for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
-        if (y === 0) {
-          const block = result.blockGrid[z][x]
-          blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
-        } else if (y % 2 === 1) {
-          const glassIndex = (y - 1) / 2
-          const layer = glassLayers - 1 - glassIndex
-          const glass = result.glassGrids![layer][z][x]
-          blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+        if (hasSupportLayer && y === 0) {
+          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
         } else {
-          // even y >= 2: air gap
-          blockData[idx] = paletteMap.get(AIR)!
+          const baseY = hasSupportLayer ? y - 1 : y
+          if (baseY === 0) {
+            const block = result.blockGrid[z][x]
+            blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+          } else if (baseY % 2 === 1) {
+            const glassIndex = (baseY - 1) / 2
+            const layer = glassLayers - 1 - glassIndex
+            const glass = result.glassGrids![layer][z][x]
+            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+          } else {
+            blockData[idx] = paletteMap.get(AIR)!
+          }
         }
         idx++
       }
@@ -86,10 +141,15 @@ const blockData = new Array<number>(width * totalHeight * length).fill(0)
 export function exportLitematic(
   result: ProcessedImage,
   _version: string,
+  supportGravity?: boolean,
+  keepCoral?: boolean,
 ): Uint8Array {
+  const supportGrid = buildSupportGrid(result, !!supportGravity, !!keepCoral)
   const width = result.width
   const glassLayers = result.glassLayers || 0
-  const totalHeight = glassLayers === 0 ? 1 : glassLayers * 2
+  const hasSupportLayer = hasSupport(supportGrid)
+  const extraY = hasSupportLayer ? 1 : 0
+  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
   const length = result.height
 
   const AIR = 'minecraft:air'
@@ -97,6 +157,8 @@ export function exportLitematic(
   blockSet.add(AIR)
   for (let z = 0; z < length; z++) {
     for (let x = 0; x < width; x++) {
+      const sid = supportGrid[z][x]
+      if (sid) blockSet.add(sid)
       const block = result.blockGrid[z][x]
       if (block) blockSet.add(block.id)
       if (result.glassGrids) {
@@ -117,16 +179,21 @@ export function exportLitematic(
   for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
-        if (y === 0) {
-          const block = result.blockGrid[z][x]
-          blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
-        } else if (y % 2 === 1) {
-          const glassIndex = (y - 1) / 2
-          const layer = glassLayers - 1 - glassIndex
-          const glass = result.glassGrids![layer][z][x]
-          blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+        if (hasSupportLayer && y === 0) {
+          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
         } else {
-          blockData[idx] = paletteMap.get(AIR)!
+          const baseY = hasSupportLayer ? y - 1 : y
+          if (baseY === 0) {
+            const block = result.blockGrid[z][x]
+            blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+          } else if (baseY % 2 === 1) {
+            const glassIndex = (baseY - 1) / 2
+            const layer = glassLayers - 1 - glassIndex
+            const glass = result.glassGrids![layer][z][x]
+            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+          } else {
+            blockData[idx] = paletteMap.get(AIR)!
+          }
         }
         idx++
       }
@@ -233,10 +300,15 @@ function getLegacyBlockId(blockId: string): [number, number] {
 export function exportSchematic(
   result: ProcessedImage,
   _version: string,
+  supportGravity?: boolean,
+  keepCoral?: boolean,
 ): Uint8Array {
+  const supportGrid = buildSupportGrid(result, !!supportGravity, !!keepCoral)
   const width = result.width
   const glassLayers = result.glassLayers || 0
-  const totalHeight = glassLayers === 0 ? 1 : glassLayers * 2
+  const hasSupportLayer = hasSupport(supportGrid)
+  const extraY = hasSupportLayer ? 1 : 0
+  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
   const length = result.height
   const total = width * totalHeight * length
 
@@ -247,21 +319,34 @@ export function exportSchematic(
   for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
-        if (y === 0) {
-          const block = result.blockGrid[z][x]
-          const [id, data] = block ? getLegacyBlockId(block.id) : [0, 0]
-          blocks[idx] = id
-          blockData[idx] = data
-        } else if (y % 2 === 1) {
-          const glassIndex = (y - 1) / 2
-          const layer = glassLayers - 1 - glassIndex
-          const glass = result.glassGrids![layer][z][x]
-          const [id, data] = glass ? getLegacyBlockId(glass.id) : [0, 0]
-          blocks[idx] = id
-          blockData[idx] = data
+        if (hasSupportLayer && y === 0) {
+          const sid = supportGrid[z][x]
+          if (sid) {
+            const [id, data] = getLegacyBlockId(sid)
+            blocks[idx] = id
+            blockData[idx] = data
+          } else {
+            blocks[idx] = 0
+            blockData[idx] = 0
+          }
         } else {
-          blocks[idx] = 0
-          blockData[idx] = 0
+          const baseY = hasSupportLayer ? y - 1 : y
+          if (baseY === 0) {
+            const block = result.blockGrid[z][x]
+            const [id, data] = block ? getLegacyBlockId(block.id) : [0, 0]
+            blocks[idx] = id
+            blockData[idx] = data
+          } else if (baseY % 2 === 1) {
+            const glassIndex = (baseY - 1) / 2
+            const layer = glassLayers - 1 - glassIndex
+            const glass = result.glassGrids![layer][z][x]
+            const [id, data] = glass ? getLegacyBlockId(glass.id) : [0, 0]
+            blocks[idx] = id
+            blockData[idx] = data
+          } else {
+            blocks[idx] = 0
+            blockData[idx] = 0
+          }
         }
         idx++
       }

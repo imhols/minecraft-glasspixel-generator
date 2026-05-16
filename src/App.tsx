@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import type { ProcessedImage } from './core/imageProcessor'
+import type { ProcessedImage, DitherMode } from './core/imageProcessor'
 import { loadImage, processImage, processImageMultiLayer } from './core/imageProcessor'
 import { getBlocks, getGlassBlocks } from './data/palettes'
+import { filterSurvival } from './data/survival'
 import ImageUploader from './components/ImageUploader'
 import ConfigPanel from './components/ConfigPanel'
 import PreviewCanvas from './components/PreviewCanvas'
@@ -24,8 +25,14 @@ export default function App() {
   const [version, setVersion] = useState('1.21')
   const [loading, setLoading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [pureGlass, setPureGlass] = useState(false)
+  const [ditherMode, setDitherMode] = useState<DitherMode>('none')
+  const [ditherThreshold, setDitherThreshold] = useState(30)
+  const [survivalFriendly, setSurvivalFriendly] = useState(false)
+  const [supportGravity, setSupportGravity] = useState(false)
+  const [keepCoral, setKeepCoral] = useState(false)
   const [history, setHistory] = useState<HistoryEntry[]>([])
-  const lastParams = useRef({ glassLayers: 0 })
+  const lastParams = useRef({ glassLayers: 0, pureGlass: false, ditherMode: 'none' as DitherMode, ditherThreshold: 30, survivalFriendly: false, supportGravity: false, keepCoral: false })
 
   const handleImageLoaded = useCallback((file: File) => {
     setSourceFile(file)
@@ -45,30 +52,29 @@ export default function App() {
       const sel = document.getElementById('version-select') as HTMLSelectElement
       const widthInput = document.getElementById('width-input') as HTMLInputElement
       const glassSelect = document.getElementById('glass-layers') as HTMLSelectElement
-      const pureGlassCheck = document.getElementById('pure-glass') as HTMLInputElement
       const v = sel?.value || '1.21'
       const w = parseInt(widthInput?.value || '64')
       const glassLayers = parseInt(glassSelect?.value || '0')
-      const pureGlass = pureGlassCheck?.checked || false
-      lastParams.current = { glassLayers }
+      lastParams.current = { glassLayers, pureGlass, ditherMode, ditherThreshold, survivalFriendly, supportGravity, keepCoral }
 
       setVersion(v)
       setProgress(2)
       const img = await loadImage(sourceFile)
       setProgress(5)
       const h = Math.round(w * (img.naturalHeight / img.naturalWidth))
-      const basePalette = getBlocks(v)
+      let basePalette = getBlocks(v)
+      if (survivalFriendly) basePalette = filterSurvival(basePalette)
       let res: ProcessedImage
 
       if (glassLayers > 0) {
         const glassPalette = getGlassBlocks(v)
         res = await processImageMultiLayer(img, w, h, basePalette, glassPalette, glassLayers, pct => {
           setProgress(5 + Math.round(pct * 90))
-        }, pureGlass)
+        }, pureGlass, ditherMode, ditherThreshold)
       } else {
         res = await processImage(img, w, h, basePalette, pct => {
           setProgress(5 + Math.round(pct * 90))
-        })
+        }, ditherMode, ditherThreshold)
       }
 
       setProgress(100)
@@ -77,7 +83,7 @@ export default function App() {
     } catch {
       setLoading(false)
     }
-  }, [sourceFile])
+  }, [sourceFile, ditherMode, pureGlass, ditherThreshold, survivalFriendly, supportGravity, keepCoral])
 
   // Save to history when result changes (skip when restoring from history)
   const restoringRef = useRef(false)
@@ -94,6 +100,12 @@ export default function App() {
     const entry: HistoryEntry = {
       result, version, originalUrl,
       glassLayers: p.glassLayers,
+      pureGlass: p.pureGlass,
+      ditherMode: p.ditherMode,
+      ditherThreshold: p.ditherThreshold,
+      survivalFriendly: p.survivalFriendly,
+      supportGravity: p.supportGravity,
+      keepCoral: p.keepCoral,
       time,
     }
     setHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY))
@@ -104,6 +116,12 @@ export default function App() {
     setResult(entry.result)
     setVersion(entry.version)
     setOriginalUrl(entry.originalUrl)
+    setPureGlass(entry.pureGlass)
+    setDitherMode(entry.ditherMode)
+    setDitherThreshold(entry.ditherThreshold)
+    setSurvivalFriendly(entry.survivalFriendly)
+    setSupportGravity(entry.supportGravity)
+    setKeepCoral(entry.keepCoral)
   }, [])
 
   const handleHistoryDelete = useCallback((i: number) => {
@@ -143,9 +161,15 @@ export default function App() {
 
       <div className="main-layout">
         <aside className="sidebar">
-          <ConfigPanel onConvert={handleConvert} loading={loading} hasImage={!!sourceFile} />
+          <ConfigPanel onConvert={handleConvert} loading={loading} hasImage={!!sourceFile}
+            ditherMode={ditherMode} onDitherModeChange={setDitherMode}
+            pureGlass={pureGlass} onPureGlassChange={setPureGlass}
+            ditherThreshold={ditherThreshold} onDitherThresholdChange={setDitherThreshold}
+            survivalFriendly={survivalFriendly} onSurvivalFriendlyChange={setSurvivalFriendly}
+            supportGravity={supportGravity} onSupportGravityChange={setSupportGravity}
+            keepCoral={keepCoral} onKeepCoralChange={setKeepCoral} />
           <HistoryPanel entries={history} onSelect={handleHistorySelect} onDelete={handleHistoryDelete} onClear={handleHistoryClear} />
-          <ExportButton result={result} version={version} />
+          <ExportButton result={result} version={version} supportGravity={supportGravity} keepCoral={keepCoral} />
         </aside>
 
         <main className="content">

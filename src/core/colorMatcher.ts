@@ -183,32 +183,48 @@ export function findBestBlend(
   pureGlass?: boolean,
 ): BlendResult {
   const base = pureGlass ? null : findClosestBlockRGB(tr, tg, tb, basePalette)
+  let best: BlendResult | null = null
+  let bestDist = Infinity
 
-  if (glassLayers === 0) {
-    if (pureGlass) return { glasses: [], base: null, color: [0, 0, 0] }
-    return { glasses: [], base: base!, color: [base!.color[0], base!.color[1], base!.color[2]] }
+  const maxLayers = Math.min(glassLayers, 4)
+  for (let layers = 0; layers <= maxLayers; layers++) {
+    let result: BlendResult
+
+    if (layers === 0) {
+      if (pureGlass) {
+        result = { glasses: [], base: null, color: [0, 0, 0] }
+      } else {
+        result = { glasses: [], base: base!, color: [base!.color[0], base!.color[1], base!.color[2]] }
+      }
+    } else {
+      const w = getGlassWeights(layers)
+
+      let rr: number, rg: number, rb: number
+      if (pureGlass) {
+        rr = tr; rg = tg; rb = tb
+      } else {
+        const bw = w[layers]
+        const bc = base!.color
+        rr = tr - bc[0] * bw; rg = tg - bc[1] * bw; rb = tb - bc[2] * bw
+      }
+
+      const wg = getWg(glassPalette)
+
+      let glasses: PaletteBlock[]
+      if (layers === 1) glasses = bestGlass1(rr, rg, rb, wg)
+      else if (layers === 2) glasses = bestGlass2(rr, rg, rb, wg)
+      else if (layers === 3) glasses = bestGlass3(rr, rg, rb, wg)
+      else glasses = bestGlass4(rr, rg, rb, wg)
+
+      const [cr, cg, cb] = computeColor(glasses, base, w)
+      result = { glasses, base, color: [cr, cg, cb] }
+    }
+
+    const [cr, cg, cb] = result.color
+    const dr = tr - cr, dg = tg - cg, db = tb - cb
+    const dist = dr * dr + dg * dg + db * db
+    if (dist < bestDist) { bestDist = dist; best = result }
   }
 
-  const layers = Math.min(glassLayers, 4)
-  const w = getGlassWeights(layers)
-
-  let rr: number, rg: number, rb: number
-  if (pureGlass) {
-    rr = tr; rg = tg; rb = tb
-  } else {
-    const bw = w[layers]
-    const bc = base!.color
-    rr = tr - bc[0] * bw; rg = tg - bc[1] * bw; rb = tb - bc[2] * bw
-  }
-
-  const wg = getWg(glassPalette)
-
-  let glasses: PaletteBlock[]
-  if (layers === 1) glasses = bestGlass1(rr, rg, rb, wg)
-  else if (layers === 2) glasses = bestGlass2(rr, rg, rb, wg)
-  else if (layers === 3) glasses = bestGlass3(rr, rg, rb, wg)
-  else glasses = bestGlass4(rr, rg, rb, wg)
-
-  const [cr, cg, cb] = computeColor(glasses, base, w)
-  return { glasses, base, color: [cr, cg, cb] }
+  return best!
 }

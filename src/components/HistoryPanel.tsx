@@ -1,11 +1,17 @@
 import { useRef, useEffect } from 'react'
-import type { ProcessedImage } from '../core/imageProcessor'
+import type { ProcessedImage, DitherMode } from '../core/imageProcessor'
 import { useLang } from '../i18n/LangContext'
 
 export interface HistoryEntry {
   result: ProcessedImage
   version: string
   glassLayers: number
+  pureGlass: boolean
+  ditherMode: DitherMode
+  ditherThreshold: number
+  survivalFriendly: boolean
+  supportGravity: boolean
+  keepCoral: boolean
   originalUrl: string
   time: string
 }
@@ -67,7 +73,7 @@ function HistoryItem({ entry, index, onSelect, onDelete }: {
       <canvas ref={canvasRef} className="history-thumb" />
       <div className="history-info">
         <span className="history-time">{entry.time}</span>
-        <span className="history-params">{entry.result.width}×{entry.result.height} | {entry.glassLayers}{t('history.layers')}</span>
+        <span className="history-params">{entry.result.width}×{entry.result.height} | {entry.glassLayers}{t('history.layers')}{entry.pureGlass ? ' · PG' : ''}{entry.survivalFriendly ? ' · SF' : ''}{entry.supportGravity ? ' · SG' : ''}{entry.keepCoral ? ' · KC' : ''} · {entry.ditherMode === 'none' ? '-' : entry.ditherMode.slice(0, 2)} · T{entry.ditherThreshold}</span>
       </div>
       <button className="history-del" onClick={e => { e.stopPropagation(); onDelete(index) }}>×</button>
     </div>
