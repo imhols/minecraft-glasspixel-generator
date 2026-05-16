@@ -10,6 +10,7 @@ import ProgressBar from './components/ProgressBar'
 import HistoryPanel from './components/HistoryPanel'
 import type { HistoryEntry } from './components/HistoryPanel'
 import { useLang } from './i18n/LangContext'
+import { useTheme } from './i18n/ThemeContext'
 import './App.css'
 
 const MAX_HISTORY = 10
@@ -108,12 +109,27 @@ export default function App() {
   }, [])
 
   const { t, toggleLang } = useLang()
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <div className="app">
-      <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
+      <div className="top-buttons">
+        <button className="theme-btn" onClick={toggleTheme}>{theme === 'dark' ? '☀' : '☾'}</button>
+        <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
+      </div>
       <header className="header">
         <div className="header-row">
+          <svg className="header-icon" width="28" height="28" viewBox="0 0 32 32">
+            <rect width="32" height="32" rx="7" fill="#07070d"/>
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+            <rect x="5" y="5" width="22" height="22" rx="4" fill="url(#g)"/>
+            <rect x="5" y="5" width="22" height="10" rx="4" fill="#fff" opacity="0.12"/>
+          </svg>
           <h1>{t('app.title')}</h1>
         </div>
         <p className="subtitle">{t('app.subtitle')}</p>

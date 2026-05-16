@@ -2,9 +2,8 @@
 
 ## Commands
 - `npm run dev` — Vite dev server at `http://localhost:5173/minecraft-glasspixel-generator/`
-- `npm run build` — `tsc -b && vite build`
-- `npm run lint` — ESLint (`**/*.{ts,tsx}`)
-- `npm run preview` — Vite preview of production build
+- `npm run build` — `tsc -b && vite build` (do both)
+- `npm run lint` — ESLint (runs on `**/*.{ts,tsx}`)
 
 ## Architecture
 
@@ -32,17 +31,29 @@
 
 - **Progress yielding**: uses `MessageChannel` (not `setTimeout`) to avoid browser throttle on background tabs.
 - **Download filenames**: `glasspixel_{width}x{height}.schem` / `.schematic` / `.litematic`
-- **NBT metadata**: Name/Author = `GlassPixel`
 - **History**: up to 10 entries, restored via `restoringRef` flag to prevent duplicate saves.
 - **Schematic height**: `1 + glassLayers * 2` (air gaps between glass layers to prevent texture merging).
-- **Block palette**: ~90 opaque blocks + 16 stained glass. `minecraft:glass` and `minecraft:cactus` removed.
+- **Block palette**: ~390 blocks (opaque + 16 stained glass + semi-transparent). `minecraft:cactus` removed (breaks next to other blocks).
 - **vite.config.ts**: `base: '/minecraft-glasspixel-generator/'` required for GitHub Pages deploy.
 - **i18n**: `useLang()` hook returns `{ t, toggleLang, lang }`. Keys in `src/i18n/translations.ts`. Default `zh`.
 - **Export Blob**: `downloadBlob` slices exact bytes (`buffer.slice(byteOffset, byteOffset + byteLength)`) — passing `.buffer` directly can append extra garbage bytes.
-- **No tests** (none configured).
 
 ## Palette structure
 
 `getBlocks(version)` — opaque blocks only (filters `transparent: true` out).  
 `getGlassBlocks(version)` — 16 stained glass only (filters by `*_stained_glass`).  
 Both cache via `BLOCKS.filter()` (new array each call).
+
+## Updating the block palette
+
+The palette (`src/data/palettes.ts`) is auto-generated from real game textures by downloading each MC version's JAR and computing average RGB.
+
+```bash
+cd scripts
+npm ci   # if first time (needs adm-zip + pngjs)
+node generate-palette.mjs   # downloads cache (~2 min first run, then cached)
+node curate.mjs              # filters non-full blocks, merges old/new naming
+copy output/curated-palettes.ts ../src/data/palettes.ts
+```
+
+Cached per-version data lives in `scripts/output/`. Delete individual `{version}.json` to re-fetch a specific version.

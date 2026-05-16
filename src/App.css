@@ -20,6 +20,20 @@
   --radius-sm: 8px;
 }
 
+[data-theme="light"] {
+  --bg: #f5f5fa;
+  --bg2: #eeeef4;
+  --bg3: #e2e2ea;
+  --card: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(99, 102, 241, 0.1);
+  --accent: #6366f1;
+  --accent2: #7c3aed;
+  --accent-glow: rgba(99, 102, 241, 0.12);
+  --text: #1a1a2e;
+  --text2: rgba(26, 26, 46, 0.55);
+  --text3: rgba(26, 26, 46, 0.3);
+}
+
 body {
   font-family: 'Inter', 'SF Pro', system-ui, -apple-system, sans-serif;
   background: var(--bg);
@@ -56,13 +70,18 @@ body {
   background-clip: text;
 }
 
-.lang-btn {
+.top-buttons {
   position: fixed;
   top: 16px;
   right: 16px;
   z-index: 100;
+  display: flex;
+  gap: 8px;
+}
+
+.lang-btn, .theme-btn {
   font-size: 0.65rem;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border: 1px solid var(--card-border);
   border-radius: 6px;
   background: var(--card);
@@ -71,9 +90,15 @@ body {
   transition: all 0.2s;
   white-space: nowrap;
   backdrop-filter: blur(12px);
+  line-height: 1.4;
 }
 
-.lang-btn:hover {
+.theme-btn {
+  font-size: 1rem;
+  padding: 2px 8px;
+}
+
+.lang-btn:hover, .theme-btn:hover {
   border-color: var(--accent-glow);
   color: var(--accent);
 }
