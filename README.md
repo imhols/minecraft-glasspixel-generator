@@ -60,7 +60,7 @@ npm run lint     # ESLint 检查
 | 格式 | 工具 | 支持多层 |
 |------|------|----------|
 | `.schem` (Sponge v2) | WorldEdit / Sponge | ✅ |
-| `.schematic` (MCEdit) | 旧版 MCEdit / WorldEdit | ❌ |
+| `.schematic` (MCEdit) | 旧版 MCEdit / WorldEdit | ✅ |
 | `.litematic` (Litematica) | Litematica 模组 | ✅ |
 
 ## 🏗️ 技术栈
