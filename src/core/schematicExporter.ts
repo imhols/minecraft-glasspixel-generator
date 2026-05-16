@@ -139,6 +139,7 @@ export function exportLitematic(
 
 function getLegacyBlockId(blockId: string): [number, number] {
   const legacyMap: Record<string, [number, number]> = {
+    'minecraft:air': [0, 0],
     'minecraft:stone': [1, 0],
     'minecraft:granite': [1, 1],
     'minecraft:diorite': [1, 3],
@@ -234,29 +235,40 @@ export function exportSchematic(
   _version: string,
 ): Uint8Array {
   const width = result.width
-  const height = 1
+  const glassLayers = result.glassLayers || 0
+  const totalHeight = glassLayers === 0 ? 1 : glassLayers * 2
   const length = result.height
-  const total = width * height * length
+  const total = width * totalHeight * length
 
   const blocks = new Uint8Array(total)
   const blockData = new Uint8Array(total)
 
   let idx = 0
-  for (let y = 0; y < height; y++) {
+  for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {
       for (let x = 0; x < width; x++) {
-        const block = result.blockGrid[z][x]
-        if (block) {
-          const [id, data] = getLegacyBlockId(block.id)
+        if (y === 0) {
+          const block = result.blockGrid[z][x]
+          const [id, data] = block ? getLegacyBlockId(block.id) : [0, 0]
           blocks[idx] = id
           blockData[idx] = data
+        } else if (y % 2 === 1) {
+          const glassIndex = (y - 1) / 2
+          const layer = glassLayers - 1 - glassIndex
+          const glass = result.glassGrids![layer][z][x]
+          const [id, data] = glass ? getLegacyBlockId(glass.id) : [0, 0]
+          blocks[idx] = id
+          blockData[idx] = data
+        } else {
+          blocks[idx] = 0
+          blockData[idx] = 0
         }
         idx++
       }
     }
   }
 
-  const raw = writeLegacySchemNbt(width, height, length, blocks, blockData)
+  const raw = writeLegacySchemNbt(width, totalHeight, length, blocks, blockData)
   return pako.gzip(raw)
 }
 
