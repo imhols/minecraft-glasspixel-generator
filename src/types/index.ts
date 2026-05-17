@@ -33,3 +33,12 @@ export interface MCVersion {
   id: string
   label: string
 }
+
+export type BlockOrientation =
+  | { axis: 'x' | 'y' | 'z' }
+  | { facing: 'up' | 'down' | 'north' | 'south' | 'east' | 'west' }
+
+export interface OrientationInfo {
+  color: [number, number, number]
+  orientation?: BlockOrientation
+}

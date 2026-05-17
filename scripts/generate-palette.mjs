@@ -50,6 +50,9 @@ const TEXTURE_TO_BLOCK = new Map([
   ['pumpkin_side', 'pumpkin'],
   ['pumpkin_top', 'pumpkin'],
   ['pumpkin_face_off', 'pumpkin'],
+  ['pumpkin_top', 'pumpkin'],
+  ['pumpkin_side', 'pumpkin'],
+  ['carved_pumpkin_top', 'carved_pumpkin'],
   ['melon_side', 'melon'],
   ['melon_top', 'melon'],
   ['cactus_side', 'cactus'],
@@ -418,6 +421,19 @@ const TEXTURE_TO_BLOCK = new Map([
   ['snow', 'snow_block'],
 ])
 
+function getFaceName(textureName) {
+  const name = textureName.replace(/\.png$/, '')
+  if (name.endsWith('_top')) return 'top'
+  if (name.endsWith('_bottom')) return 'bottom'
+  if (name.endsWith('_side')) return 'side'
+  if (name.endsWith('_front')) return 'front'
+  if (name.endsWith('_back')) return 'back'
+  // For logs and pillars, no-suffix texture = side (bark)
+  // Textures ending in _top/bottom that get stripped by getBlockName are handled above
+  // Textures with no suffix represent the default face (usually side)
+  return null
+}
+
 function getBlockName(textureName) {
   // Strip .png
   let name = textureName.replace(/\.png$/, '')
@@ -537,7 +553,10 @@ function extractTextures(jarBuf, versionId, tempDir) {
 }
 
 function processTextures(textures, tempDir) {
-  const blockColors = new Map() // blockName -> [{rgb, version, fullyOpaque, anyTransparent}]
+  const blockColors = new Map() // blockName -> [{texture, rgb, fullyOpaque, anyTransparent}]
+
+  // Per-face colors: blockName -> { top?: rgb, bottom?: rgb, side?: rgb, front?: rgb, back?: rgb }
+  const faceColors = new Map()
 
   for (const [texName, filePath] of Object.entries(textures)) {
     const blockName = getBlockName(texName)
@@ -557,6 +576,19 @@ function processTextures(textures, tempDir) {
       texture: texName,
       ...result,
     })
+
+    // Collect per-face color
+    const faceName = getFaceName(texName)
+    if (!faceColors.has(blockName)) faceColors.set(blockName, {})
+    const faces = faceColors.get(blockName)
+    if (faceName) {
+      faces[faceName] = result.rgb
+    } else {
+      // No-suffix texture is the default/side face
+      if (!faces._default) {
+        faces._default = result.rgb
+      }
+    }
   }
 
   // Average multi-face colors
@@ -571,7 +603,20 @@ function processTextures(textures, tempDir) {
     merged.set(blockName, { rgb: [avgR, avgG, avgB], fullyOpaque, anyTransparent })
   }
 
-  return merged
+  // Promote _default to the missing face (top > side > bottom)
+  for (const [, faces] of faceColors) {
+    if (faces._default) {
+      const namedKeys = Object.keys(faces).filter(k => k !== '_default')
+      if (namedKeys.length >= 1) {
+        if (!faces.top) faces.top = faces._default
+        else if (!faces.side) faces.side = faces._default
+        else if (!faces.bottom) faces.bottom = faces._default
+      }
+      delete faces._default
+    }
+  }
+
+  return { merged, faceColors }
 }
 
 function detectStainedGlass(blockName) {
@@ -685,12 +730,15 @@ async function main() {
   // Per-version data
   const versionColors = new Map() // version -> Map<blockName, {rgb, fullyOpaque, anyTransparent}>
   const allBlockVersions = new Map() // blockName -> Set<version>
+  // Per-face data: blockName -> { top?: rgb, bottom?: rgb, side?: rgb, front?: rgb, back?: rgb }
+  const mergedFaceColors = new Map()
 
   for (const v of versionOrders) {
     console.log(`\n[${v.id}]`)
 
     // Check if we already cached
     const cachePath = path.join(outputDir, `${v.id}.json`)
+    const faceCachePath = path.join(outputDir, `${v.id}-faces.json`)
     if (fs.existsSync(cachePath)) {
       console.log(`  Loading cached data...`)
       const cached = JSON.parse(fs.readFileSync(cachePath, 'utf-8'))
@@ -702,6 +750,17 @@ async function main() {
       }
       versionColors.set(v.id, blockMap)
       console.log(`  ${blockMap.size} blocks loaded from cache`)
+
+      // Load per-face cache
+      if (fs.existsSync(faceCachePath)) {
+        const faceCached = JSON.parse(fs.readFileSync(faceCachePath, 'utf-8'))
+        for (const [name, faces] of Object.entries(faceCached)) {
+          if (!mergedFaceColors.has(name)) mergedFaceColors.set(name, {})
+          // Merge: newer version overwrites
+          Object.assign(mergedFaceColors.get(name), faces)
+        }
+        console.log(`  ${Object.keys(faceCached).length} blocks with per-face data`)
+      }
       continue
     }
 
@@ -709,7 +768,21 @@ async function main() {
       const jarBuf = await downloadJar(v.id)
       const tempDir = fs.mkdtempSync(path.join(tmpdir(), 'mc-'))
       const textures = extractTextures(jarBuf, v.id, tempDir)
-      const merged = processTextures(textures, tempDir)
+      const { merged, faceColors } = processTextures(textures, tempDir)
+
+      // Save per-face colors
+      const faceCachePath = path.join(outputDir, `${v.id}-faces.json`)
+      const faceCacheData = {}
+      for (const [name, faces] of faceColors) {
+        // Only save if has at least 2 different faces
+        const faceKeys = Object.keys(faces)
+        if (faceKeys.length >= 2) {
+          faceCacheData[name] = faces
+          if (!mergedFaceColors.has(name)) mergedFaceColors.set(name, {})
+          Object.assign(mergedFaceColors.get(name), faces)
+        }
+      }
+      fs.writeFileSync(faceCachePath, JSON.stringify(faceCacheData, null, 2))
 
       // Save cache
       const cacheData = {}
@@ -723,7 +796,7 @@ async function main() {
 
       // Cleanup temp
       fs.rmSync(tempDir, { recursive: true, force: true })
-      console.log(`  ${merged.size} unique blocks extracted`)
+      console.log(`  ${merged.size} unique blocks extracted, ${Object.keys(faceCacheData).length} with per-face data`)
     } catch (err) {
       console.error(`  Error processing ${v.id}: ${err.message}`)
       continue
@@ -767,6 +840,19 @@ async function main() {
   const ts = formatPalette(mergedBlocks, versionMap, versionOrders)
   const outputPath = path.join(process.cwd(), 'output', 'palettes.ts')
   fs.writeFileSync(outputPath, ts)
+
+  // Output per-face colors
+  const faceOutputPath = path.join(process.cwd(), 'output', 'face-colors.json')
+  const faceOutput = {}
+  for (const [name, faces] of mergedFaceColors) {
+    // Only include blocks that survived curation (present in mergedBlocks)
+    if (mergedBlocks.has(name)) {
+      faceOutput[name] = faces
+    }
+  }
+  fs.writeFileSync(faceOutputPath, JSON.stringify(faceOutput, null, 2))
+  console.log(`\nFace color data: ${faceOutputPath}`)
+  console.log(`Blocks with per-face data: ${Object.keys(faceOutput).length}`)
 
   console.log(`\nOutput: ${outputPath}`)
   console.log(`Total blocks: ${mergedBlocks.size}`)

@@ -1,5 +1,6 @@
 import type { PaletteBlock } from '../data/palettes'
-import { findBestBlend, findClosestBlockRGB } from './colorMatcher'
+import { findBestBlend, findBestOrientedBlock } from './colorMatcher'
+import type { BlockOrientation } from '../types'
 
 export type DitherMode = 'none' | 'floyd-steinberg' | 'jarvis-judice-ninke' | 'atkinson' | 'sierra-lite'
 
@@ -8,6 +9,7 @@ export interface ProcessedImage {
   height: number
   pixels: number[][][]
   blockGrid: (PaletteBlock | null)[][]
+  orientationGrid?: (BlockOrientation | undefined)[][]  // [y][x], per-block orientation
   usedBlocks: Map<string, number>
   glassGrids?: (PaletteBlock | null)[][][]  // [layer][y][x], layer 0 = top
   glassLayers?: number
@@ -129,6 +131,7 @@ async function processImageBase(
   const multiLayer = glassLayers > 0 && glassPalette.length > 0
   const glassGrids: (PaletteBlock | null)[][][] = []
   const blockGrid: (PaletteBlock | null)[][] = []
+  const orientationGrid: (BlockOrientation | undefined)[][] = []
   const usedBlocks = new Map<string, number>()
   const batchSize = Math.max(1, Math.floor(targetHeight / 20))
 
@@ -163,6 +166,7 @@ async function processImageBase(
     const row: number[][] = []
     const aRow: boolean[] = []
     const bRow: (PaletteBlock | null)[] = []
+    const oRow: (BlockOrientation | undefined)[] = []
     for (let x = 0; x < targetWidth; x++) {
       const i = (y * targetWidth + x) * 4
       let r = raw[i], g = raw[i + 1], b = raw[i + 2]
@@ -179,6 +183,7 @@ async function processImageBase(
         const res = findBestBlend(r, g, b, palette, glassPalette, glassLayers, pureGlass)
         row.push(res.color)
         bRow.push(res.base)
+        oRow.push(res.baseOrientation)
         for (let l = 0; l < glassLayers; l++) glassGrids[l][y][x] = res.glasses[l]
         if (res.base) usedBlocks.set(res.base.id, (usedBlocks.get(res.base.id) || 0) + 1)
         for (const gl of res.glasses) usedBlocks.set(gl.id, (usedBlocks.get(gl.id) || 0) + 1)
@@ -189,11 +194,12 @@ async function processImageBase(
           }
         }
       } else {
-        const block = findClosestBlockRGB(r, g, b, palette)
-        const mc = block.color
+        const ob = findBestOrientedBlock(r, g, b, palette)
+        const mc = ob.color
         row.push([mc[0], mc[1], mc[2]])
-        bRow.push(block)
-        usedBlocks.set(block.id, (usedBlocks.get(block.id) || 0) + 1)
+        bRow.push(ob.block)
+        oRow.push(ob.orientation)
+        usedBlocks.set(ob.block.id, (usedBlocks.get(ob.block.id) || 0) + 1)
         if (useDither) {
           const er = r - mc[0], eg = g - mc[1], eb = b - mc[2]
           if (er * er + eg * eg + eb * eb > threshold * threshold) {
@@ -205,6 +211,7 @@ async function processImageBase(
     pixels.push(row)
     alphaMask.push(aRow)
     blockGrid.push(bRow)
+    orientationGrid.push(oRow)
     if (y % batchSize === 0 && y > 0) {
       onProgress?.(0.1 + 0.85 * (y / targetHeight))
       await yieldFrame()
@@ -216,6 +223,7 @@ async function processImageBase(
     for (let x = 0; x < targetWidth; x++) {
       if (alphaMask[y][x]) {
         blockGrid[y][x] = null
+        orientationGrid[y][x] = undefined
         for (let l = 0; l < glassLayers; l++) glassGrids[l][y][x] = null
       }
     }
@@ -224,7 +232,7 @@ async function processImageBase(
   onProgress?.(1)
   const result: ProcessedImage = {
     width: targetWidth, height: targetHeight,
-    pixels, blockGrid, usedBlocks,
+    pixels, blockGrid, orientationGrid, usedBlocks,
   }
   if (alphaMask.some(row => row.some(a => a))) result.alphaMask = alphaMask
   if (multiLayer) { result.glassGrids = glassGrids; result.glassLayers = glassLayers }

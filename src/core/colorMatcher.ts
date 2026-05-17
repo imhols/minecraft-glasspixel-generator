@@ -1,4 +1,6 @@
 import type { PaletteBlock } from '../data/palettes'
+import { DIRECTIONAL_BLOCKS } from '../data/faceColors'
+import type { BlockOrientation } from '../types'
 
 export function getGlassWeights(layers: number): number[] {
   const w: number[] = []
@@ -58,6 +60,85 @@ export function findClosestBlock(r: number, g: number, b: number, palette: Palet
   return best!
 }
 
+const FACING_DIRS: ('up' | 'down' | 'north' | 'south' | 'east' | 'west')[] = ['up', 'down', 'north', 'south', 'east', 'west']
+const AXIS_DIRS: ('x' | 'y' | 'z')[] = ['y', 'x', 'z']
+
+function tryBlock(r: number, g: number, b: number, color: [number, number, number]): number {
+  const dr = r - color[0], dg = g - color[1], db = b - color[2]
+  return dr * dr + dg * dg + db * db
+}
+
+export function findBestOrientedBlock(
+  tr: number, tg: number, tb: number,
+  palette: PaletteBlock[],
+): { block: PaletteBlock; color: [number, number, number]; orientation?: BlockOrientation } {
+  let best: PaletteBlock | null = null
+  let bestColor: [number, number, number] = [0, 0, 0]
+  let bestOrientation: BlockOrientation | undefined
+  let bestDist = Infinity
+
+  for (const block of palette) {
+    const dirInfo = DIRECTIONAL_BLOCKS[block.id]
+
+    if (!dirInfo) {
+      const d = tryBlock(tr, tg, tb, block.color)
+      if (d < bestDist) {
+        bestDist = d
+        best = block
+        bestColor = block.color
+        bestOrientation = undefined
+      }
+      continue
+    }
+
+    const { faces, group } = dirInfo
+
+    if (group === 'axis') {
+      for (const axis of AXIS_DIRS) {
+        const faceColor = axis === 'y'
+          ? (faces.top || block.color)
+          : (faces.side || block.color)
+        const d = tryBlock(tr, tg, tb, faceColor)
+        if (d < bestDist) {
+          bestDist = d
+          best = block
+          bestColor = faceColor
+          bestOrientation = { axis }
+        }
+      }
+    } else if (group === 'fixed') {
+      const faceColor = faces.top || block.color
+      const d = tryBlock(tr, tg, tb, faceColor)
+      if (d < bestDist) {
+        bestDist = d
+        best = block
+        bestColor = faceColor
+        bestOrientation = undefined
+      }
+    } else if (group === 'facing') {
+      for (const facing of FACING_DIRS) {
+        let faceColor: [number, number, number]
+        if (facing === 'up') {
+          faceColor = faces.top || block.color
+        } else if (facing === 'down') {
+          faceColor = faces.bottom || faces.top || block.color
+        } else {
+          faceColor = faces.front || faces.side || block.color
+        }
+        const d = tryBlock(tr, tg, tb, faceColor)
+        if (d < bestDist) {
+          bestDist = d
+          best = block
+          bestColor = faceColor
+          bestOrientation = { facing }
+        }
+      }
+    }
+  }
+
+  return { block: best!, color: bestColor, orientation: bestOrientation }
+}
+
 export function findClosestBlockRGB(r: number, g: number, b: number, palette: PaletteBlock[]): PaletteBlock {
   let best: PaletteBlock | null = null, bestDist = Infinity
   for (const block of palette) {
@@ -71,6 +152,7 @@ export function findClosestBlockRGB(r: number, g: number, b: number, palette: Pa
 export interface BlendResult {
   glasses: PaletteBlock[]
   base: PaletteBlock | null
+  baseOrientation?: BlockOrientation
   color: [number, number, number]
 }
 
@@ -182,7 +264,9 @@ export function findBestBlend(
   glassLayers: number,
   pureGlass?: boolean,
 ): BlendResult {
-  const base = pureGlass ? null : findClosestBlockRGB(tr, tg, tb, basePalette)
+  const orientedBase = pureGlass ? null : findBestOrientedBlock(tr, tg, tb, basePalette)
+  const base = orientedBase?.block ?? null
+  const baseOrientation = orientedBase?.orientation
   let best: BlendResult | null = null
   let bestDist = Infinity
 
@@ -194,7 +278,7 @@ export function findBestBlend(
       if (pureGlass) {
         result = { glasses: [], base: null, color: [0, 0, 0] }
       } else {
-        result = { glasses: [], base: base!, color: [base!.color[0], base!.color[1], base!.color[2]] }
+        result = { glasses: [], base: base!, baseOrientation, color: [base!.color[0], base!.color[1], base!.color[2]] }
       }
     } else {
       const w = getGlassWeights(layers)
@@ -217,7 +301,7 @@ export function findBestBlend(
       else glasses = bestGlass4(rr, rg, rb, wg)
 
       const [cr, cg, cb] = computeColor(glasses, base, w)
-      result = { glasses, base, color: [cr, cg, cb] }
+      result = { glasses, base, baseOrientation, color: [cr, cg, cb] }
     }
 
     const [cr, cg, cb] = result.color

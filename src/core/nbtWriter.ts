@@ -260,9 +260,25 @@ export function writeLitematicNbt(
   w.longArray(words)
   w.tag(9, 'BlockStatePalette')
   w.listStart(10, palette.length)
-  for (const id of palette) {
+  for (const entry of palette) {
     w.tag(10, '')
-    w.tag(8, 'Name'); w.string(id)
+    // Parse "minecraft:block[prop=val]" into Name + Properties
+    const bracketIdx = entry.indexOf('[')
+    if (bracketIdx >= 0) {
+      const name = entry.slice(0, bracketIdx)
+      const propsStr = entry.slice(bracketIdx + 1, -1) // "axis=y"
+      w.tag(8, 'Name'); w.string(name)
+      w.tag(10, 'Properties')
+      for (const part of propsStr.split(',')) {
+        const eqIdx = part.indexOf('=')
+        if (eqIdx >= 0) {
+          w.tag(8, part.slice(0, eqIdx)); w.string(part.slice(eqIdx + 1))
+        }
+      }
+      w.end()
+    } else {
+      w.tag(8, 'Name'); w.string(entry)
+    }
     w.end()
   }
   w.tag(3, 'TotalVolume'); w.int(width * height * length)

@@ -1,6 +1,14 @@
 import pako from 'pako'
 import { writeSchemNbt, writeLegacySchemNbt, writeLitematicNbt } from './nbtWriter'
 import type { ProcessedImage } from './imageProcessor'
+import type { BlockOrientation } from '../types'
+
+function blockStateId(id: string, orientation?: BlockOrientation): string {
+  if (!orientation) return id
+  if ('axis' in orientation) return `${id}[axis=${orientation.axis}]`
+  if ('facing' in orientation) return `${id}[facing=${orientation.facing}]`
+  return id
+}
 
 const GRAVITY_BLOCKS = new Set([
   'minecraft:sand',
@@ -85,12 +93,18 @@ export function exportSchemV2(
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
+  // Pre-compute state ID for each block position
+  const stateGrid: string[][] = []
   for (let z = 0; z < length; z++) {
+    const row: string[] = []
     for (let x = 0; x < width; x++) {
+      const block = result.blockGrid[z][x]
+      const orientation = result.orientationGrid?.[z]?.[x]
       const sid = supportGrid[z][x]
       if (sid) blockSet.add(sid)
-      const block = result.blockGrid[z][x]
-      if (block) blockSet.add(block.id)
+      const stateId = block ? blockStateId(block.id, orientation) : AIR
+      row.push(stateId)
+      blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
           const g = result.glassGrids[l][z][x]
@@ -98,13 +112,14 @@ export function exportSchemV2(
         }
       }
     }
+    stateGrid.push(row)
   }
 
   const palette = Array.from(blockSet).sort()
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
-const blockData = new Array<number>(width * totalHeight * length).fill(0)
+  const blockData = new Array<number>(width * totalHeight * length).fill(0)
   let idx = 0
   for (let y = 0; y < totalHeight; y++) {
     for (let z = 0; z < length; z++) {
@@ -114,8 +129,7 @@ const blockData = new Array<number>(width * totalHeight * length).fill(0)
         } else {
           const baseY = hasSupportLayer ? y - 1 : y
           if (baseY === 0) {
-            const block = result.blockGrid[z][x]
-            blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+            blockData[idx] = paletteMap.get(stateGrid[z][x])!
           } else if (baseY % 2 === 1) {
             const glassIndex = (baseY - 1) / 2
             const layer = glassLayers - 1 - glassIndex
@@ -155,12 +169,17 @@ export function exportLitematic(
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
+  const stateGrid: string[][] = []
   for (let z = 0; z < length; z++) {
+    const row: string[] = []
     for (let x = 0; x < width; x++) {
+      const block = result.blockGrid[z][x]
+      const orientation = result.orientationGrid?.[z]?.[x]
       const sid = supportGrid[z][x]
       if (sid) blockSet.add(sid)
-      const block = result.blockGrid[z][x]
-      if (block) blockSet.add(block.id)
+      const stateId = block ? blockStateId(block.id, orientation) : AIR
+      row.push(stateId)
+      blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
           const g = result.glassGrids[l][z][x]
@@ -168,6 +187,7 @@ export function exportLitematic(
         }
       }
     }
+    stateGrid.push(row)
   }
 
   const palette = Array.from(blockSet).sort()
@@ -184,8 +204,7 @@ export function exportLitematic(
         } else {
           const baseY = hasSupportLayer ? y - 1 : y
           if (baseY === 0) {
-            const block = result.blockGrid[z][x]
-            blockData[idx] = block ? paletteMap.get(block.id)! : paletteMap.get(AIR)!
+            blockData[idx] = paletteMap.get(stateGrid[z][x])!
           } else if (baseY % 2 === 1) {
             const glassIndex = (baseY - 1) / 2
             const layer = glassLayers - 1 - glassIndex
@@ -202,6 +221,24 @@ export function exportLitematic(
 
   const raw = writeLitematicNbt(width, totalHeight, length, palette, blockData)
   return pako.gzip(raw)
+}
+
+function legacyBlockData(_blockId: string, orientation?: BlockOrientation): number {
+  if (!orientation) return 0
+  if ('axis' in orientation) {
+    // Axis-oriented blocks: data 0=y(up), 4=x, 8=z
+    if (orientation.axis === 'x') return 4
+    if (orientation.axis === 'z') return 8
+    return 0
+  }
+  if ('facing' in orientation) {
+    // For legacy format, map facing to data value
+    const facingMap: Record<string, number> = {
+      'down': 0, 'up': 1, 'north': 2, 'south': 3, 'west': 4, 'east': 5,
+    }
+    return facingMap[orientation.facing] ?? 0
+  }
+  return 0
 }
 
 function getLegacyBlockId(blockId: string): [number, number] {
@@ -333,9 +370,10 @@ export function exportSchematic(
           const baseY = hasSupportLayer ? y - 1 : y
           if (baseY === 0) {
             const block = result.blockGrid[z][x]
-            const [id, data] = block ? getLegacyBlockId(block.id) : [0, 0]
+            const orientation = result.orientationGrid?.[z]?.[x]
+            const [id] = block ? getLegacyBlockId(block.id) : [0]
             blocks[idx] = id
-            blockData[idx] = data
+            blockData[idx] = block ? legacyBlockData(block.id, orientation) : 0
           } else if (baseY % 2 === 1) {
             const glassIndex = (baseY - 1) / 2
             const layer = glassLayers - 1 - glassIndex
