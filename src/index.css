@@ -1,8 +1,8 @@
 :root {
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
-  color-scheme: dark;
+  color-scheme: light dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -41,7 +41,6 @@ export default function ImageUploader({ onImageLoaded, hasImage }: {
         hidden
         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
       />
-      <div className="upload-icon">📁</div>
       <div className="upload-text">{t('upload.dropText')}</div>
       <div className="upload-hint">{t('upload.dropHint')}</div>
     </div>
