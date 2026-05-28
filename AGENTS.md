@@ -37,6 +37,7 @@
 - **vite.config.ts**: `base: '/minecraft-glasspixel-generator/'` required for GitHub Pages deploy.
 - **i18n**: `useLang()` hook returns `{ t, toggleLang, lang }`. Keys in `src/i18n/translations.ts`. Default `zh`.
 - **Export Blob**: `downloadBlob` slices exact bytes (`buffer.slice(byteOffset, byteOffset + byteLength)`) — passing `.buffer` directly can append extra garbage bytes.
+- **No emojis in UI**: Use text or CSS-only icons. Never use emoji characters in page design.
 - **No auto-push**: Never commit or push without explicit user approval.
 
 ## Palette structure

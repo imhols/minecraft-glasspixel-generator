@@ -28,7 +28,6 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
 
     const rw = result.width, rh = result.height
 
-    // Render preview (nearest-neighbor upscale)
     const canvas = canvasRef.current
     canvas.width = cw
     canvas.height = ch
@@ -56,7 +55,49 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
         setDataUrl(blobUrlRef.current)
       }
     })
-  }, [result, cw, ch])
+  }, [result, cw, ch, originalSrc])
+
+  // — Zoom state —
+  const [shiftHeld, setShiftHeld] = useState(false)
+  const [mouseOnImg, setMouseOnImg] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Shift' && !e.repeat) setShiftHeld(true)
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') setShiftHeld(false)
+    }
+    const onBlur = () => setShiftHeld(false)
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', onBlur)
+    }
+  }, [])
+
+  const magnifierActive = shiftHeld
+
+  const onMouseEnter = useCallback(() => setMouseOnImg(true), [])
+
+  const onMouseLeave = useCallback(() => {
+    setMouseOnImg(false)
+    onRelease()
+  }, [onRelease])
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!magnifierActive) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const pctX = ((e.clientX - rect.left) / rect.width * 100).toFixed(2)
+    const pctY = ((e.clientY - rect.top) / rect.height * 100).toFixed(2)
+    const imgs = e.currentTarget.querySelectorAll<HTMLImageElement>('.preview-img, .preview-img-orig')
+    for (const img of imgs) {
+      img.style.transformOrigin = `${pctX}% ${pctY}%`
+    }
+  }, [magnifierActive])
 
   if (!result) return null
 
@@ -67,12 +108,17 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
       <h3>
         {t('preview.title', { width: result.width, height: result.height, usedBlocks: result.usedBlocks.size })}
         {originalW ? <span className="original-size">{t('preview.originalSize', { w: originalW!, h: originalH! })}</span> : null}
-        {originalSrc && <span className="hold-hint">{t('preview.holdHint')}</span>}
+        {originalSrc && <>
+          <span className="hold-hint">{t('preview.holdHint')}</span>
+          <span className="zoom-hint">{t('preview.magnifierHint')}</span>
+        </>}
       </h3>
-      <div className="preview-img-wrap"
+      <div className={'preview-img-wrap' + (magnifierActive && mouseOnImg ? ' zoomed' : '')}
         onMouseDown={onHold}
         onMouseUp={onRelease}
-        onMouseLeave={onRelease}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onMouseMove={onMouseMove}
         onTouchStart={onHold}
         onTouchEnd={onRelease}
         style={{ aspectRatio: previewAspect }}

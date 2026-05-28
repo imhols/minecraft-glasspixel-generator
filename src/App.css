@@ -717,6 +717,25 @@ body::before {
   user-select: none;
   -webkit-user-select: none;
 }
+.zoom-hint {
+  font-size: 0.68rem;
+  color: var(--color-text-subtle);
+  margin-left: 6px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+
+/* ── Magnifier ── */
+.preview-img-wrap.zoomed {
+  cursor: crosshair;
+}
+
+.preview-img-wrap.zoomed .preview-img,
+.preview-img-wrap.zoomed .preview-img-orig {
+  transform: scale(3);
+  transition: transform 0.15s ease-out;
+}
 
 /* ── Block Stats ── */
 .block-stats {
