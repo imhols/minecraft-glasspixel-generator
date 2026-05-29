@@ -697,6 +697,8 @@ body::before {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .preview-img-orig {
@@ -708,6 +710,8 @@ body::before {
   object-fit: fill;
   image-rendering: auto;
   pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .hold-hint {
