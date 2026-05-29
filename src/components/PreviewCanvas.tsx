@@ -59,45 +59,81 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
 
   // — Zoom state —
   const [shiftHeld, setShiftHeld] = useState(false)
-  const [mouseOnImg, setMouseOnImg] = useState(false)
+  const shiftHeldRef = useRef(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const accPosRef = useRef({ x: 50, y: 50 })
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Shift' && !e.repeat) setShiftHeld(true)
+      if (e.key === 'Shift' && !e.repeat) {
+        shiftHeldRef.current = true
+        setShiftHeld(true)
+        accPosRef.current = { x: 50, y: 50 }
+        wrapRef.current?.requestPointerLock()
+      }
     }
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') setShiftHeld(false)
+      if (e.key === 'Shift') {
+        shiftHeldRef.current = false
+        setShiftHeld(false)
+        if (document.pointerLockElement) document.exitPointerLock()
+      }
     }
-    const onBlur = () => setShiftHeld(false)
+    const onBlur = () => {
+      shiftHeldRef.current = false
+      setShiftHeld(false)
+      if (document.pointerLockElement) document.exitPointerLock()
+    }
+    const onLockChange = () => {
+      if (!document.pointerLockElement && shiftHeldRef.current) {
+        shiftHeldRef.current = false
+        setShiftHeld(false)
+      }
+    }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
     window.addEventListener('blur', onBlur)
+    document.addEventListener('pointerlockchange', onLockChange)
+    document.addEventListener('pointerlockerror', onLockChange)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
       window.removeEventListener('blur', onBlur)
+      document.removeEventListener('pointerlockchange', onLockChange)
+      document.removeEventListener('pointerlockerror', onLockChange)
     }
   }, [])
 
-  const magnifierActive = shiftHeld
-
-  const onMouseEnter = useCallback(() => setMouseOnImg(true), [])
+  useEffect(() => {
+    if (!shiftHeld) return
+    const onMouseMove = (e: MouseEvent) => {
+      if (!document.pointerLockElement) return
+      const wrap = wrapRef.current
+      if (!wrap) return
+      const rect = wrap.getBoundingClientRect()
+      const pctX = accPosRef.current.x + (e.movementX / rect.width * 100)
+      const pctY = accPosRef.current.y + (e.movementY / rect.height * 100)
+      accPosRef.current.x = Math.min(100, Math.max(0, pctX))
+      accPosRef.current.y = Math.min(100, Math.max(0, pctY))
+      const px = accPosRef.current.x.toFixed(2)
+      const py = accPosRef.current.y.toFixed(2)
+      const imgs = wrap.querySelectorAll<HTMLImageElement>('.preview-img, .preview-img-orig')
+      for (const img of imgs) {
+        img.style.transformOrigin = `${px}% ${py}%`
+      }
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${px}%`
+        cursorRef.current.style.top = `${py}%`
+      }
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    return () => window.removeEventListener('mousemove', onMouseMove)
+  }, [shiftHeld])
 
   const onMouseLeave = useCallback(() => {
-    setMouseOnImg(false)
     onRelease()
   }, [onRelease])
-
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!magnifierActive) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const pctX = ((e.clientX - rect.left) / rect.width * 100).toFixed(2)
-    const pctY = ((e.clientY - rect.top) / rect.height * 100).toFixed(2)
-    const imgs = e.currentTarget.querySelectorAll<HTMLImageElement>('.preview-img, .preview-img-orig')
-    for (const img of imgs) {
-      img.style.transformOrigin = `${pctX}% ${pctY}%`
-    }
-  }, [magnifierActive])
 
   if (!result) return null
 
@@ -113,12 +149,10 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
           <span className="zoom-hint">{t('preview.magnifierHint')}</span>
         </>}
       </h3>
-      <div className={'preview-img-wrap' + (magnifierActive && mouseOnImg ? ' zoomed' : '')}
+      <div ref={wrapRef} className={'preview-img-wrap' + (shiftHeld ? ' zoomed' : '')}
         onMouseDown={onHold}
         onMouseUp={onRelease}
-        onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        onMouseMove={onMouseMove}
         onTouchStart={onHold}
         onTouchEnd={onRelease}
         style={{ aspectRatio: previewAspect }}
@@ -131,6 +165,7 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
           <img src={originalSrc} alt={t('preview.altOriginal')} className="preview-img-orig" draggable={false}
             style={{ opacity: showOrig ? 1 : 0 }} />
         )}
+        <div ref={cursorRef} className="zoom-cursor" />
       </div>
       <canvas ref={canvasRef} hidden />
       <div className="block-stats">
