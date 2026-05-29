@@ -124,11 +124,11 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
         style={{ aspectRatio: previewAspect }}
       >
         {dataUrl && (
-          <img src={dataUrl} alt={t('preview.alt')} className="preview-img"
+          <img src={dataUrl} alt={t('preview.alt')} className="preview-img" draggable={false}
             style={{ opacity: showOrig ? 0 : 1 }} />
         )}
         {originalSrc && (
-          <img src={originalSrc} alt={t('preview.altOriginal')} className="preview-img-orig"
+          <img src={originalSrc} alt={t('preview.altOriginal')} className="preview-img-orig" draggable={false}
             style={{ opacity: showOrig ? 1 : 0 }} />
         )}
       </div>
