@@ -29,15 +29,15 @@
   --color-primary-dark: #6366f1;
   --color-accent: #a78bfa;
   --color-accent-dark: #8b5cf6;
-  --color-bg: #12141a;
-  --color-bg-alt: #1a1c24;
-  --color-bg-card: rgba(26,28,36,0.75);
-  --color-bg-glass: rgba(26,28,36,0.5);
+  --color-bg: #1e2235;
+  --color-bg-alt: #262b42;
+  --color-bg-card: rgba(38,43,66,0.78);
+  --color-bg-glass: rgba(38,43,66,0.55);
   --color-text: #f1f5f9;
   --color-text-muted: #94a3b8;
   --color-text-subtle: #64748b;
-  --color-border: #2d3039;
-  --color-border-hover: #4b4f5e;
+  --color-border: #2f3554;
+  --color-border-hover: #4b5280;
 }
 
 /* ── Aurora Background ── */
