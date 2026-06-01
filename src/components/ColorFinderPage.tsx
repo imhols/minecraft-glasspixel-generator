@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import type { PaletteBlock } from '../data/palettes'
 import { getBlocks, getGlassBlocks } from '../data/palettes'
 import { applyColorOverrides } from '../data/colorOverrides'
@@ -10,6 +10,16 @@ import { renderBlock, renderColorSwatch, BLOCK_SIZE } from './BlockRenderer'
 import { preloadTextures } from './textureLoader'
 import StackedPreview from './StackedPreview'
 
+function parseHex(hex: string): [number, number, number] | null {
+  const m = hex.match(/^#?([0-9a-fA-F]{6})$/)
+  if (!m) return null
+  const h = m[1]
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
+}
+
+function toHex(v: number) { return Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0') }
+function rgbToHex(r: number, g: number, b: number) { return `#${toHex(r)}${toHex(g)}${toHex(b)}` }
+
 const STACK_SIZE = 256
 
 export default function ColorFinderPage() {
@@ -18,13 +28,11 @@ export default function ColorFinderPage() {
   const [r, setR] = useState(128)
   const [g, setG] = useState(128)
   const [b, setB] = useState(128)
-  const [hex, setHex] = useState('#808080')
   const [version, setVersion] = useState('1.21')
   const [glassLayers, setGlassLayers] = useState(2)
   const [pureGlass, setPureGlass] = useState(false)
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
   const [result, setResult] = useState<BlendResult | null>(null)
-  const [targetColor, setTargetColor] = useState<[number, number, number]>([128, 128, 128])
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
   const [textureVersion, setTextureVersion] = useState(0)
@@ -34,42 +42,29 @@ export default function ColorFinderPage() {
 
 
   const handleHexChange = useCallback((value: string) => {
-    setHex(value)
-    const match = value.match(/^#?([0-9a-fA-F]{6})$/)
-    if (match) {
-      const hexVal = match[1]
-      const nr = parseInt(hexVal.slice(0, 2), 16)
-      const ng = parseInt(hexVal.slice(2, 4), 16)
-      const nb = parseInt(hexVal.slice(4, 6), 16)
-      setR(nr); setG(ng); setB(nb)
-    }
+    const rgb = parseHex(value)
+    if (rgb) { setR(rgb[0]); setG(rgb[1]); setB(rgb[2]) }
   }, [])
 
   const handleRgbChange = useCallback((nr: number, ng: number, nb: number) => {
     setR(nr); setG(ng); setB(nb)
-    const toHex = (v: number) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')
-    setHex(`#${toHex(nr)}${toHex(ng)}${toHex(nb)}`)
   }, [])
 
-  const handleColorPicker = useCallback((value: string) => {
-    setHex(value)
-    const hexVal = value.replace('#', '')
-    const nr = parseInt(hexVal.slice(0, 2), 16)
-    const ng = parseInt(hexVal.slice(2, 4), 16)
-    const nb = parseInt(hexVal.slice(4, 6), 16)
-    setR(nr); setG(ng); setB(nb)
-  }, [])
+  const basePalette = useMemo(() => {
+    let p = getBlocks(version)
+    p = applyColorOverrides(p)
+    if (survivalFriendly) p = filterSurvival(p)
+    return p
+  }, [version, survivalFriendly])
+
+  const glassPalette = useMemo(() => {
+    return glassLayers > 0 ? getGlassBlocks(version) : []
+  }, [version, glassLayers])
 
   const handleSearch = useCallback(() => {
     const tr = Math.max(0, Math.min(255, r))
     const tg = Math.max(0, Math.min(255, g))
     const tb = Math.max(0, Math.min(255, b))
-    setTargetColor([tr, tg, tb])
-
-    let basePalette = getBlocks(version)
-    basePalette = applyColorOverrides(basePalette)
-    if (survivalFriendly) basePalette = filterSurvival(basePalette)
-    const glassPalette = glassLayers > 0 ? getGlassBlocks(version) : []
 
     const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
 
@@ -83,26 +78,26 @@ export default function ColorFinderPage() {
         color: baseMatch.color,
       })
     }
-  }, [r, g, b, version, glassLayers, pureGlass, survivalFriendly])
+  }, [r, g, b, glassLayers, pureGlass, basePalette, glassPalette])
 
   useEffect(() => {
     const canvas = targetCanvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    canvas.width = BLOCK_SIZE
-    canvas.height = BLOCK_SIZE
-    renderColorSwatch(ctx, targetColor, BLOCK_SIZE)
-  }, [targetColor])
+    renderColorSwatch(ctx, [r, g, b], BLOCK_SIZE)
+  }, [r, g, b])
 
   useEffect(() => {
     if (!result) return
+    let cancelled = false
     const ids: string[] = []
     if (result.base) ids.push(result.base.id)
     result.glasses.forEach(g => ids.push(g.id))
     preloadTextures(ids).then(() => {
-      setTextureVersion(v => v + 1)
+      if (!cancelled) setTextureVersion(v => v + 1)
     })
+    return () => { cancelled = true }
   }, [result])
 
   useEffect(() => {
@@ -251,15 +246,15 @@ export default function ColorFinderPage() {
             <div className="finder-hex-input">
               <label>
                 #
-                <input type="text" maxLength={7} value={hex} onChange={e => handleHexChange(e.target.value)} />
+                <input type="text" maxLength={7} value={rgbToHex(r, g, b)} onChange={e => handleHexChange(e.target.value)} />
               </label>
             </div>
             <div className="finder-target-swatch">
               <div className="finder-swatch-wrap">
                 <canvas ref={targetCanvasRef} width={BLOCK_SIZE} height={BLOCK_SIZE} className="finder-canvas-block" />
-                <input type="color" value={hex} onChange={e => handleColorPicker(e.target.value)} className="finder-swatch-picker" />
+                <input type="color" value={rgbToHex(r, g, b)} onChange={e => handleHexChange(e.target.value)} className="finder-swatch-picker" />
               </div>
-              <span className="finder-color-label">RGB({targetColor[0]},{targetColor[1]},{targetColor[2]})</span>
+              <span className="finder-color-label">RGB({r},{g},{b})</span>
             </div>
           </div>
         </div>
