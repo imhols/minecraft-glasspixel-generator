@@ -261,7 +261,7 @@ export default function ColorFinderPage() {
       </aside>
 
       <main className="content">
-        <div className="finder-input-section glass-card">
+        <div className="finder-input-section">
           <h3>{t('finder.hint')}</h3>
           <div className="finder-input-row">
             <div className="finder-rgb-inputs">
