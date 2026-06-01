@@ -254,11 +254,11 @@ export default function ColorFinderPage() {
                 <input type="text" maxLength={7} value={hex} onChange={e => handleHexChange(e.target.value)} />
               </label>
             </div>
-            <div className="finder-color-picker">
-              <input type="color" value={hex} onChange={e => handleColorPicker(e.target.value)} />
-            </div>
             <div className="finder-target-swatch">
-              <canvas ref={targetCanvasRef} width={BLOCK_SIZE} height={BLOCK_SIZE} className="finder-canvas-block" />
+              <div className="finder-swatch-wrap">
+                <canvas ref={targetCanvasRef} width={BLOCK_SIZE} height={BLOCK_SIZE} className="finder-canvas-block" />
+                <input type="color" value={hex} onChange={e => handleColorPicker(e.target.value)} className="finder-swatch-picker" />
+              </div>
               <span className="finder-color-label">RGB({targetColor[0]},{targetColor[1]},{targetColor[2]})</span>
             </div>
           </div>
