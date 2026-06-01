@@ -1037,39 +1037,6 @@ body::before {
   height: 74px;
 }
 
-.stacked-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.stacked-preview:active {
-  cursor: grabbing;
-}
-
-.stacked-stage {
-  position: relative;
-  width: 256px;
-  height: 256px;
-  transform-style: preserve-3d;
-  will-change: transform;
-  flex-shrink: 0;
-}
-
-.stacked-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 256px;
-  height: 256px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  pointer-events: none;
-}
-
 .finder-stacked-info {
   margin-top: 16px;
   display: flex;

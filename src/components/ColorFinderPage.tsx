@@ -1,110 +1,16 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { PaletteBlock } from '../data/palettes'
 import { getBlocks, getGlassBlocks } from '../data/palettes'
 import { applyColorOverrides } from '../data/colorOverrides'
+import { filterSurvival } from '../data/survival'
 import { findClosestBlockRGB, findBestBlend } from '../core/colorMatcher'
 import type { BlendResult } from '../core/colorMatcher'
 import { useLang } from '../i18n/LangContext'
 import { renderBlock, renderColorSwatch, BLOCK_SIZE } from './BlockRenderer'
 import { preloadTextures } from './textureLoader'
+import StackedPreview from './StackedPreview'
 
 const STACK_SIZE = 256
-
-function StackedPreview({
-  baseUrl,
-  layerUrls,
-}: {
-  baseUrl: string
-  layerUrls: { src: string; zOffset: number }[]
-}) {
-  const stageRef = useRef<HTMLDivElement>(null)
-  const layerRefs = useRef<(HTMLImageElement | null)[]>([])
-  const offsetRef = useRef({ x: 0, y: 0 })
-  const draggingRef = useRef(false)
-  const rafRef = useRef(0)
-
-  const reversed = useMemo(() => [...layerUrls].reverse(), [layerUrls])
-  layerRefs.current = layerRefs.current.slice(0, reversed.length)
-  const depths = reversed.map((_, i) => (i + 1) * 0.04)
-
-  function schedule() {
-    if (!rafRef.current) {
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = 0
-        applyTransforms()
-      })
-    }
-  }
-
-  function applyTransforms() {
-    const { x, y } = offsetRef.current
-    const dragging = draggingRef.current
-    const tiltMag = Math.min(1, Math.sqrt(x * x + y * y))
-    const gapBoost = 1 + tiltMag * 4
-
-    if (stageRef.current) {
-      stageRef.current.style.transform = dragging
-        ? `perspective(800px) rotateX(${-y * 20}deg) rotateY(${x * 20}deg)`
-        : ''
-    }
-
-    layerRefs.current.forEach((el, i) => {
-      if (!el) return
-      const factor = dragging ? depths[i] * gapBoost : 0
-      el.style.transform = `translate(${x * factor * STACK_SIZE}px, ${y * factor * STACK_SIZE}px)`
-    })
-  }
-
-  useEffect(() => {
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [])
-
-  function handleMouseDown() {
-    draggingRef.current = true
-    schedule()
-  }
-
-  function handleMouseUp() {
-    draggingRef.current = false
-    offsetRef.current = { x: 0, y: 0 }
-    schedule()
-  }
-
-  function handleMouseMove(e: React.MouseEvent) {
-    if (!draggingRef.current || !stageRef.current) return
-    const rect = stageRef.current.getBoundingClientRect()
-    const cx = rect.left + rect.width / 2
-    const cy = rect.top + rect.height / 2
-    offsetRef.current = {
-      x: (e.clientX - cx) / rect.width,
-      y: (e.clientY - cy) / rect.height,
-    }
-    schedule()
-  }
-
-  return (
-    <div
-      className="stacked-preview"
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseUp}
-    >
-      <div ref={stageRef} className="stacked-stage">
-        {baseUrl && <img src={baseUrl} alt="Base" className="stacked-layer" />}
-        {reversed.map((layer, i) => (
-          <img
-            key={i}
-            src={layer.src}
-            alt={`Glass ${layerUrls.length - i}`}
-            className="stacked-layer"
-            ref={el => { layerRefs.current[i] = el }}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
 
 export default function ColorFinderPage() {
   const { t } = useLang()
@@ -116,6 +22,7 @@ export default function ColorFinderPage() {
   const [version, setVersion] = useState('1.21')
   const [glassLayers, setGlassLayers] = useState(2)
   const [pureGlass, setPureGlass] = useState(false)
+  const [survivalFriendly, setSurvivalFriendly] = useState(false)
   const [result, setResult] = useState<BlendResult | null>(null)
   const [targetColor, setTargetColor] = useState<[number, number, number]>([128, 128, 128])
   const [baseOnly, setBaseOnly] = useState<PaletteBlock | null>(null)
@@ -162,6 +69,7 @@ export default function ColorFinderPage() {
 
     let basePalette = getBlocks(version)
     basePalette = applyColorOverrides(basePalette)
+    if (survivalFriendly) basePalette = filterSurvival(basePalette)
     const glassPalette = glassLayers > 0 ? getGlassBlocks(version) : []
 
     const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
@@ -177,7 +85,7 @@ export default function ColorFinderPage() {
         color: baseMatch.color,
       })
     }
-  }, [r, g, b, version, glassLayers, pureGlass])
+  }, [r, g, b, version, glassLayers, pureGlass, survivalFriendly])
 
   useEffect(() => {
     const canvas = targetCanvasRef.current
@@ -307,23 +215,22 @@ export default function ColorFinderPage() {
           </div>
 
           <div className="config-group">
-            <label>{t('config.glassLayers')}</label>
-            <select
-              value={glassLayers}
-              onChange={e => setGlassLayers(Number(e.target.value))}
-            >
-              <option value={0}>0</option>
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-            </select>
+            <label>{t('config.glassLayers')} <span id="finder-layers-value">{glassLayers}</span></label>
+            <input type="range" min={0} max={4} step={1} value={glassLayers}
+              onChange={e => setGlassLayers(Number(e.target.value))} />
           </div>
 
           <div className="config-group checkbox-group">
             <label className="checkbox-label">
               <input type="checkbox" checked={pureGlass} onChange={e => setPureGlass(e.target.checked)} />
               {t('config.pureGlass')}
+            </label>
+          </div>
+
+          <div className="config-group checkbox-group">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={survivalFriendly} onChange={e => setSurvivalFriendly(e.target.checked)} />
+              {t('config.survival')}
             </label>
           </div>
 
