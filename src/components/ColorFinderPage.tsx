@@ -9,6 +9,53 @@ import { useLang } from '../i18n/LangContext'
 import { renderBlock, renderColorSwatch, BLOCK_SIZE } from './BlockRenderer'
 import { preloadTextures } from './textureLoader'
 import StackedPreview from './StackedPreview'
+import { motion, useMotionValue, useTransform, useSpring } from 'motion/react'
+
+function DockBlockItem({
+  block,
+  mouseX,
+}: {
+  block: PaletteBlock
+  mouseX: ReturnType<typeof useMotionValue<number>>
+}) {
+  const BASE = BLOCK_SIZE + 4
+  const MAG = BASE * 1.6
+  const DIST = 200
+  const ref = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    renderBlock(ctx, block)
+  })
+
+  const mouseDist = useTransform(mouseX, (val: number) => {
+    const rect = ref.current?.getBoundingClientRect()
+    if (!rect) return 0
+    return val - rect.x - rect.width / 2
+  })
+
+  const targetSize = useTransform(mouseDist, [-DIST, 0, DIST], [BASE, MAG, BASE])
+  const size = useSpring(targetSize, { mass: 0.1, stiffness: 150, damping: 12 })
+
+  return (
+    <motion.div
+      ref={ref}
+      className="dock-block-item"
+      style={{ width: size, height: size }}
+    >
+      <canvas
+        ref={canvasRef}
+        width={BLOCK_SIZE}
+        height={BLOCK_SIZE}
+        className="dock-block-canvas"
+      />
+    </motion.div>
+  )
+}
 
 function parseHex(hex: string): [number, number, number] | null {
   const m = hex.match(/^#?([0-9a-fA-F]{6})$/)
@@ -37,8 +84,8 @@ export default function ColorFinderPage() {
   const [baseUrl, setBaseUrl] = useState('')
   const [textureVersion, setTextureVersion] = useState(0)
 
-  const hCanvasRef = useRef<HTMLCanvasElement>(null)
   const targetCanvasRef = useRef<HTMLCanvasElement>(null)
+  const dockMouseX = useMotionValue(Infinity)
 
 
   const handleHexChange = useCallback((value: string) => {
@@ -153,29 +200,6 @@ export default function ColorFinderPage() {
     return list
   }
 
-  useEffect(() => {
-    const canvas = hCanvasRef.current
-    if (!canvas || !result) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const blocks = getBlocksList(result)
-    if (blocks.length === 0) return
-
-    const spacing = BLOCK_SIZE + 4
-    const totalW = blocks.length * spacing - 4
-    canvas.width = totalW
-    canvas.height = BLOCK_SIZE
-    ctx.clearRect(0, 0, totalW, BLOCK_SIZE)
-    ctx.imageSmoothingEnabled = false
-    blocks.forEach((block, i) => {
-      ctx.save()
-      ctx.translate(i * spacing, 0)
-      renderBlock(ctx, block)
-      ctx.restore()
-    })
-  }, [result, textureVersion])
-
   return (
     <div className="finder-layout">
       <aside className="sidebar">
@@ -262,9 +286,15 @@ export default function ColorFinderPage() {
         {result && (
           <div className="finder-result-section">
             <div className="finder-result-body">
-              <div className="finder-horizontal-view">
-                <canvas ref={hCanvasRef} className="finder-canvas-row" />
-              </div>
+              <motion.div
+                className="finder-horizontal-dock"
+                onMouseMove={e => dockMouseX.set(e.pageX)}
+                onMouseLeave={() => dockMouseX.set(Infinity)}
+              >
+                {getBlocksList(result).map(block => (
+                  <DockBlockItem key={block.id} block={block} mouseX={dockMouseX} />
+                ))}
+              </motion.div>
               <StackedPreview
                 baseUrl={baseUrl}
                 layerUrls={layerUrls}
