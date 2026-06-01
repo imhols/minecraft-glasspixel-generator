@@ -1,0 +1,416 @@
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import type { PaletteBlock } from '../data/palettes'
+import { getBlocks, getGlassBlocks } from '../data/palettes'
+import { applyColorOverrides } from '../data/colorOverrides'
+import { findClosestBlockRGB, findBestBlend } from '../core/colorMatcher'
+import type { BlendResult } from '../core/colorMatcher'
+import { useLang } from '../i18n/LangContext'
+import { renderBlock, renderColorSwatch, BLOCK_SIZE } from './BlockRenderer'
+import { preloadTextures } from './textureLoader'
+
+const STACK_SIZE = 256
+
+function StackedPreview({
+  baseUrl,
+  layerUrls,
+}: {
+  baseUrl: string
+  layerUrls: { src: string; zOffset: number }[]
+}) {
+  const stageRef = useRef<HTMLDivElement>(null)
+  const layerRefs = useRef<(HTMLImageElement | null)[]>([])
+  const offsetRef = useRef({ x: 0, y: 0 })
+  const draggingRef = useRef(false)
+  const rafRef = useRef(0)
+
+  const reversed = useMemo(() => [...layerUrls].reverse(), [layerUrls])
+  layerRefs.current = layerRefs.current.slice(0, reversed.length)
+  const depths = reversed.map((_, i) => (i + 1) * 0.04)
+
+  function schedule() {
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        applyTransforms()
+      })
+    }
+  }
+
+  function applyTransforms() {
+    const { x, y } = offsetRef.current
+    const dragging = draggingRef.current
+    const tiltMag = Math.min(1, Math.sqrt(x * x + y * y))
+    const gapBoost = 1 + tiltMag * 4
+
+    if (stageRef.current) {
+      stageRef.current.style.transform = dragging
+        ? `perspective(800px) rotateX(${-y * 20}deg) rotateY(${x * 20}deg)`
+        : ''
+    }
+
+    layerRefs.current.forEach((el, i) => {
+      if (!el) return
+      const factor = dragging ? depths[i] * gapBoost : 0
+      el.style.transform = `translate(${x * factor * STACK_SIZE}px, ${y * factor * STACK_SIZE}px)`
+    })
+  }
+
+  useEffect(() => {
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+  }, [])
+
+  function handleMouseDown() {
+    draggingRef.current = true
+    schedule()
+  }
+
+  function handleMouseUp() {
+    draggingRef.current = false
+    offsetRef.current = { x: 0, y: 0 }
+    schedule()
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!draggingRef.current || !stageRef.current) return
+    const rect = stageRef.current.getBoundingClientRect()
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+    offsetRef.current = {
+      x: (e.clientX - cx) / rect.width,
+      y: (e.clientY - cy) / rect.height,
+    }
+    schedule()
+  }
+
+  return (
+    <div
+      className="stacked-preview"
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseUp}
+    >
+      <div ref={stageRef} className="stacked-stage">
+        {baseUrl && <img src={baseUrl} alt="Base" className="stacked-layer" />}
+        {reversed.map((layer, i) => (
+          <img
+            key={i}
+            src={layer.src}
+            alt={`Glass ${layerUrls.length - i}`}
+            className="stacked-layer"
+            ref={el => { layerRefs.current[i] = el }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function ColorFinderPage() {
+  const { t } = useLang()
+
+  const [r, setR] = useState(128)
+  const [g, setG] = useState(128)
+  const [b, setB] = useState(128)
+  const [hex, setHex] = useState('#808080')
+  const [version, setVersion] = useState('1.21')
+  const [glassLayers, setGlassLayers] = useState(2)
+  const [pureGlass, setPureGlass] = useState(false)
+  const [result, setResult] = useState<BlendResult | null>(null)
+  const [targetColor, setTargetColor] = useState<[number, number, number]>([128, 128, 128])
+  const [baseOnly, setBaseOnly] = useState<PaletteBlock | null>(null)
+  const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
+  const [baseUrl, setBaseUrl] = useState('')
+  const [textureVersion, setTextureVersion] = useState(0)
+
+  const hCanvasRef = useRef<HTMLCanvasElement>(null)
+  const targetCanvasRef = useRef<HTMLCanvasElement>(null)
+
+
+  const handleHexChange = useCallback((value: string) => {
+    setHex(value)
+    const match = value.match(/^#?([0-9a-fA-F]{6})$/)
+    if (match) {
+      const hexVal = match[1]
+      const nr = parseInt(hexVal.slice(0, 2), 16)
+      const ng = parseInt(hexVal.slice(2, 4), 16)
+      const nb = parseInt(hexVal.slice(4, 6), 16)
+      setR(nr); setG(ng); setB(nb)
+    }
+  }, [])
+
+  const handleRgbChange = useCallback((nr: number, ng: number, nb: number) => {
+    setR(nr); setG(ng); setB(nb)
+    const toHex = (v: number) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')
+    setHex(`#${toHex(nr)}${toHex(ng)}${toHex(nb)}`)
+  }, [])
+
+  const handleColorPicker = useCallback((value: string) => {
+    setHex(value)
+    const hexVal = value.replace('#', '')
+    const nr = parseInt(hexVal.slice(0, 2), 16)
+    const ng = parseInt(hexVal.slice(2, 4), 16)
+    const nb = parseInt(hexVal.slice(4, 6), 16)
+    setR(nr); setG(ng); setB(nb)
+  }, [])
+
+  const handleSearch = useCallback(() => {
+    const tr = Math.max(0, Math.min(255, r))
+    const tg = Math.max(0, Math.min(255, g))
+    const tb = Math.max(0, Math.min(255, b))
+    setTargetColor([tr, tg, tb])
+
+    let basePalette = getBlocks(version)
+    basePalette = applyColorOverrides(basePalette)
+    const glassPalette = glassLayers > 0 ? getGlassBlocks(version) : []
+
+    const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
+    setBaseOnly(baseMatch)
+
+    if (glassLayers > 0 && glassPalette.length > 0) {
+      const blend = findBestBlend(tr, tg, tb, basePalette, glassPalette, glassLayers, pureGlass)
+      setResult(blend)
+    } else {
+      setResult({
+        glasses: [],
+        base: baseMatch,
+        color: baseMatch.color,
+      })
+    }
+  }, [r, g, b, version, glassLayers, pureGlass])
+
+  useEffect(() => {
+    const canvas = targetCanvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    canvas.width = BLOCK_SIZE
+    canvas.height = BLOCK_SIZE
+    renderColorSwatch(ctx, targetColor, BLOCK_SIZE)
+  }, [targetColor])
+
+  useEffect(() => {
+    if (!result) return
+    const ids: string[] = []
+    if (result.base) ids.push(result.base.id)
+    result.glasses.forEach(g => ids.push(g.id))
+    preloadTextures(ids).then(() => {
+      setTextureVersion(v => v + 1)
+    })
+  }, [result])
+
+  useEffect(() => {
+    if (!result) return
+    const canvas = document.createElement('canvas')
+    canvas.width = STACK_SIZE
+    canvas.height = STACK_SIZE
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const scale = STACK_SIZE / BLOCK_SIZE
+    ctx.imageSmoothingEnabled = false
+    ctx.scale(scale, scale)
+
+    const layers: { src: string; zOffset: number }[] = []
+    const zStep = 15
+
+    if (result.base) {
+      ctx.clearRect(0, 0, BLOCK_SIZE, BLOCK_SIZE)
+      renderBlock(ctx, result.base)
+      setBaseUrl(canvas.toDataURL())
+      result.glasses.forEach((glass, i) => {
+        ctx.clearRect(0, 0, BLOCK_SIZE, BLOCK_SIZE)
+        ctx.globalAlpha = 0.5
+        renderBlock(ctx, glass)
+        ctx.globalAlpha = 1
+        layers.push({ src: canvas.toDataURL(), zOffset: (i + 1) * zStep })
+      })
+    } else if (result.glasses.length > 0) {
+      ctx.clearRect(0, 0, BLOCK_SIZE, BLOCK_SIZE)
+      renderBlock(ctx, result.glasses[0])
+      setBaseUrl(canvas.toDataURL())
+      for (let i = 1; i < result.glasses.length; i++) {
+        ctx.clearRect(0, 0, BLOCK_SIZE, BLOCK_SIZE)
+        ctx.globalAlpha = 0.5
+        renderBlock(ctx, result.glasses[i])
+        ctx.globalAlpha = 1
+        layers.push({ src: canvas.toDataURL(), zOffset: i * zStep })
+      }
+    } else {
+      setBaseUrl('')
+    }
+
+    setLayerUrls(layers)
+  }, [result, textureVersion])
+
+  function getBlocksList(res: BlendResult): PaletteBlock[] {
+    const list: PaletteBlock[] = []
+    if (res.base) list.push(res.base)
+    for (let i = res.glasses.length - 1; i >= 0; i--) {
+      list.push(res.glasses[i])
+    }
+    return list
+  }
+
+  useEffect(() => {
+    const canvas = hCanvasRef.current
+    if (!canvas || !result) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const blocks = getBlocksList(result)
+    if (blocks.length === 0) return
+
+    const spacing = BLOCK_SIZE + 4
+    const totalW = blocks.length * spacing - 4
+    canvas.width = totalW
+    canvas.height = BLOCK_SIZE
+    ctx.clearRect(0, 0, totalW, BLOCK_SIZE)
+    ctx.imageSmoothingEnabled = false
+    blocks.forEach((block, i) => {
+      ctx.save()
+      ctx.translate(i * spacing, 0)
+      renderBlock(ctx, block)
+      ctx.restore()
+    })
+  }, [result, textureVersion])
+
+  const dist = result
+    ? Math.sqrt(
+        (targetColor[0] - result.color[0]) ** 2 +
+        (targetColor[1] - result.color[1]) ** 2 +
+        (targetColor[2] - result.color[2]) ** 2,
+      )
+    : null
+
+  return (
+    <div className="finder-layout">
+      <aside className="sidebar">
+        <div className="config-panel">
+          <h3>{t('finder.title')}</h3>
+
+          <div className="config-group">
+            <label>{t('config.version')}</label>
+            <select
+              id="finder-version-select"
+              value={version}
+              onChange={e => setVersion(e.target.value)}
+            >
+              <option value="1.12.2">1.12.2</option>
+              <option value="1.13.2">1.13 / 1.14 / 1.15</option>
+              <option value="1.16.5">1.16</option>
+              <option value="1.17.1">1.17 / 1.18</option>
+              <option value="1.19">1.19</option>
+              <option value="1.20">1.20</option>
+              <option value="1.21">1.21+</option>
+            </select>
+          </div>
+
+          <div className="config-group">
+            <label>{t('config.glassLayers')}</label>
+            <select
+              value={glassLayers}
+              onChange={e => setGlassLayers(Number(e.target.value))}
+            >
+              <option value={0}>0</option>
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+            </select>
+          </div>
+
+          <div className="config-group checkbox-group">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={pureGlass} onChange={e => setPureGlass(e.target.checked)} />
+              {t('config.pureGlass')}
+            </label>
+          </div>
+
+          <button className="convert-btn" onClick={handleSearch}>
+            {t('finder.search')}
+          </button>
+        </div>
+      </aside>
+
+      <main className="content">
+        <div className="finder-input-section glass-card">
+          <h3>{t('finder.hint')}</h3>
+          <div className="finder-input-row">
+            <div className="finder-rgb-inputs">
+              <label>
+                R
+                <input type="number" min={0} max={255} value={r} onChange={e => handleRgbChange(Number(e.target.value), g, b)} />
+              </label>
+              <label>
+                G
+                <input type="number" min={0} max={255} value={g} onChange={e => handleRgbChange(r, Number(e.target.value), b)} />
+              </label>
+              <label>
+                B
+                <input type="number" min={0} max={255} value={b} onChange={e => handleRgbChange(r, g, Number(e.target.value))} />
+              </label>
+            </div>
+            <div className="finder-hex-input">
+              <label>
+                #
+                <input type="text" maxLength={7} value={hex} onChange={e => handleHexChange(e.target.value)} />
+              </label>
+            </div>
+            <div className="finder-color-picker">
+              <input type="color" value={hex} onChange={e => handleColorPicker(e.target.value)} />
+            </div>
+            <div className="finder-target-swatch">
+              <canvas ref={targetCanvasRef} width={BLOCK_SIZE} height={BLOCK_SIZE} className="finder-canvas-block" />
+              <span className="finder-color-label">RGB({targetColor[0]},{targetColor[1]},{targetColor[2]})</span>
+            </div>
+          </div>
+        </div>
+
+        {result && (
+          <div className="finder-result-section glass-card">
+            <div className="finder-result-header">
+              <h3>{t('finder.result')}</h3>
+            </div>
+
+            <div className="finder-result-body">
+              <div className="finder-horizontal-view">
+                <canvas ref={hCanvasRef} className="finder-canvas-row" />
+              </div>
+              <StackedPreview
+                baseUrl={baseUrl}
+                layerUrls={layerUrls}
+              />
+            </div>
+
+            <div className="finder-stacked-info">
+              <div className="finder-glass-list">
+                <span className="finder-label-mini">{t('finder.targetColor')}</span>
+                <canvas width={32} height={32} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderColorSwatch(c, targetColor, 32) } }} className="finder-mini-swatch" />
+                <span className="finder-label-mini">{t('finder.result')}</span>
+                <canvas width={32} height={32} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderColorSwatch(c, result.color, 32) } }} className="finder-mini-swatch" />
+                {dist !== null && (
+                  <span className="finder-distance">{t('finder.distance')}: {dist.toFixed(1)}</span>
+                )}
+              </div>
+              <div className="finder-glass-list">
+                {result.base && <span className="finder-tag">{result.base.name}</span>}
+                {result.glasses.map((g, i) => (
+                  <span key={i} className="finder-tag glass">{g.name}</span>
+                ))}
+                {result.glasses.length === 0 && !result.base && <span>{t('finder.none')}</span>}
+              </div>
+            </div>
+
+            {baseOnly && glassLayers > 0 && !pureGlass && (
+              <div className="finder-base-compare">
+                {t('finder.none')} (N=0): {baseOnly.name}
+                <canvas width={20} height={20} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderBlock(c, baseOnly) } }} className="finder-mini-block" />
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}

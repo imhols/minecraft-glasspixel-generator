@@ -14,6 +14,7 @@ import ExportButton from './components/ExportButton'
 import ProgressBar from './components/ProgressBar'
 import HistoryPanel from './components/HistoryPanel'
 import type { HistoryEntry } from './components/HistoryPanel'
+import ColorFinderPage from './components/ColorFinderPage'
 import { useLang } from './i18n/LangContext'
 import { useTheme } from './i18n/ThemeContext'
 import './App.css'
@@ -94,6 +95,7 @@ function reconstructFromWorker(
 }
 
 export default function App() {
+  const [page, setPage] = useState<'converter' | 'finder'>('converter')
   const [result, setResult] = useState<ProcessedImage | null>(null)
   const [sourceFile, setSourceFile] = useState<File | null>(null)
   const [originalUrl, setOriginalUrl] = useState('')
@@ -254,6 +256,9 @@ export default function App() {
       <div className="top-buttons">
         <button className="theme-btn" onClick={toggleTheme}>{theme === 'dark' ? '☀' : '☾'}</button>
         <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
+        <button className="nav-btn" onClick={() => setPage(p => p === 'converter' ? 'finder' : 'converter')}>
+          {page === 'converter' ? t('finder.title') : t('app.title')}
+        </button>
       </div>
       <header className="header">
         <div className="header-row">
@@ -273,6 +278,9 @@ export default function App() {
         <p className="subtitle">{t('app.subtitle')}</p>
       </header>
 
+      {page === 'finder' ? (
+        <ColorFinderPage />
+      ) : (
       <div className="main-layout">
         <aside className="sidebar">
           <ConfigPanel onConvert={handleConvert} loading={loading} hasImage={!!sourceFile}
@@ -309,6 +317,7 @@ export default function App() {
           ) : null}
         </main>
       </div>
+      )}
     </div>
   )
 }
