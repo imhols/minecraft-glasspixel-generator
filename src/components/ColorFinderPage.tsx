@@ -23,6 +23,7 @@ function DockBlockItem({
   const DIST = 200
   const ref = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [tip, setTip] = useState<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -46,6 +47,8 @@ function DockBlockItem({
       ref={ref}
       className="dock-block-item"
       style={{ width: size, height: size }}
+      onMouseMove={e => setTip({ x: e.clientX, y: e.clientY })}
+      onMouseLeave={() => setTip(null)}
     >
       <canvas
         ref={canvasRef}
@@ -53,6 +56,11 @@ function DockBlockItem({
         height={BLOCK_SIZE}
         className="dock-block-canvas"
       />
+      {tip && (
+        <div className="dock-tooltip" style={{ left: tip.x + 12, top: tip.y - 4 }}>
+          {block.id}
+        </div>
+      )}
     </motion.div>
   )
 }

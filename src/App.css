@@ -1057,6 +1057,19 @@ body::before {
   border-radius: 4px;
 }
 
+.dock-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
 .finder-result-section {
   padding: 8px 16px;
 }
