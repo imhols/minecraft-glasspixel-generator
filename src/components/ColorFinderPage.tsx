@@ -91,6 +91,7 @@ export default function ColorFinderPage() {
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
   const [textureVersion, setTextureVersion] = useState(0)
+  const [searchKey, setSearchKey] = useState(0)
 
   const targetCanvasRef = useRef<HTMLCanvasElement>(null)
   const dockMouseX = useMotionValue(Infinity)
@@ -122,6 +123,8 @@ export default function ColorFinderPage() {
     const tb = Math.max(0, Math.min(255, b))
 
     const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
+
+    setSearchKey(k => k + 1)
 
     if (glassLayers > 0 && glassPalette.length > 0) {
       const blend = findBestBlend(tr, tg, tb, basePalette, glassPalette, glassLayers, pureGlass)
@@ -295,6 +298,7 @@ export default function ColorFinderPage() {
           <div className="finder-result-section">
             <div className="finder-result-body">
               <motion.div
+                key={`dock-${searchKey}`}
                 className="finder-horizontal-dock"
                 onMouseMove={e => dockMouseX.set(e.pageX)}
                 onMouseLeave={() => dockMouseX.set(Infinity)}
