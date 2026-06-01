@@ -1033,11 +1033,11 @@ body::before {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border-radius: 10px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
   height: 110px;
   box-sizing: border-box;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
 }
 
 .dock-block-item {
@@ -1073,9 +1073,6 @@ body::before {
   align-items: center;
   gap: 4px;
   padding: 6px 8px;
-  border-radius: 10px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
   height: 110px;
   box-sizing: border-box;
   overflow: hidden;
