@@ -196,6 +196,10 @@ body::before {
   gap: 28px;
 }
 
+.finder-layout .content {
+  gap: 12px;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -926,13 +930,13 @@ body::before {
 
 /* ── Color Finder ── */
 .finder-input-section {
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 .finder-input-section h3 {
   font-size: 0.7rem;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   color: var(--color-text-muted);
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -1019,96 +1023,26 @@ body::before {
 }
 
 .finder-result-section {
-  padding: 20px;
-}
-
-.finder-result-header h3 {
-  font-size: 1rem;
-  margin-bottom: 16px;
-  color: var(--color-text);
+  padding: 8px 16px;
 }
 
 .finder-result-body {
-  min-height: 100px;
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
 }
 
 .finder-horizontal-view {
   display: flex;
   justify-content: center;
-  min-height: 80px;
 }
 
 .finder-canvas-row {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   height: 74px;
-}
-
-.finder-stacked-info {
-  margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
-
-.finder-glass-list {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.finder-label-mini {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  font-weight: 500;
-}
-
-.finder-mini-swatch {
-  border-radius: 3px;
-  border: 1px solid var(--color-border);
-  width: 32px;
-  height: 32px;
-}
-
-.finder-distance {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  font-family: monospace;
-}
-
-.finder-tag {
-  font-size: 0.78rem;
-  padding: 2px 8px;
-  background: var(--color-bg-alt);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  color: var(--color-text-muted);
-  font-family: monospace;
-}
-
-.finder-tag.glass {
-  background: rgba(167, 139, 250, 0.1);
-  border-color: rgba(167, 139, 250, 0.2);
-  color: var(--color-accent);
-}
-
-.finder-base-compare {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-}
-
-.finder-mini-block {
-  border-radius: 3px;
-  border: 1px solid var(--color-border);
 }
 
 .checkbox-group {

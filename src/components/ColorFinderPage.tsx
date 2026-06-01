@@ -25,7 +25,6 @@ export default function ColorFinderPage() {
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
   const [result, setResult] = useState<BlendResult | null>(null)
   const [targetColor, setTargetColor] = useState<[number, number, number]>([128, 128, 128])
-  const [baseOnly, setBaseOnly] = useState<PaletteBlock | null>(null)
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
   const [textureVersion, setTextureVersion] = useState(0)
@@ -73,7 +72,6 @@ export default function ColorFinderPage() {
     const glassPalette = glassLayers > 0 ? getGlassBlocks(version) : []
 
     const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
-    setBaseOnly(baseMatch)
 
     if (glassLayers > 0 && glassPalette.length > 0) {
       const blend = findBestBlend(tr, tg, tb, basePalette, glassPalette, glassLayers, pureGlass)
@@ -183,14 +181,6 @@ export default function ColorFinderPage() {
     })
   }, [result, textureVersion])
 
-  const dist = result
-    ? Math.sqrt(
-        (targetColor[0] - result.color[0]) ** 2 +
-        (targetColor[1] - result.color[1]) ** 2 +
-        (targetColor[2] - result.color[2]) ** 2,
-      )
-    : null
-
   return (
     <div className="finder-layout">
       <aside className="sidebar">
@@ -275,11 +265,7 @@ export default function ColorFinderPage() {
         </div>
 
         {result && (
-          <div className="finder-result-section glass-card">
-            <div className="finder-result-header">
-              <h3>{t('finder.result')}</h3>
-            </div>
-
+          <div className="finder-result-section">
             <div className="finder-result-body">
               <div className="finder-horizontal-view">
                 <canvas ref={hCanvasRef} className="finder-canvas-row" />
@@ -289,32 +275,6 @@ export default function ColorFinderPage() {
                 layerUrls={layerUrls}
               />
             </div>
-
-            <div className="finder-stacked-info">
-              <div className="finder-glass-list">
-                <span className="finder-label-mini">{t('finder.targetColor')}</span>
-                <canvas width={32} height={32} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderColorSwatch(c, targetColor, 32) } }} className="finder-mini-swatch" />
-                <span className="finder-label-mini">{t('finder.result')}</span>
-                <canvas width={32} height={32} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderColorSwatch(c, result.color, 32) } }} className="finder-mini-swatch" />
-                {dist !== null && (
-                  <span className="finder-distance">{t('finder.distance')}: {dist.toFixed(1)}</span>
-                )}
-              </div>
-              <div className="finder-glass-list">
-                {result.base && <span className="finder-tag">{result.base.name}</span>}
-                {result.glasses.map((g, i) => (
-                  <span key={i} className="finder-tag glass">{g.name}</span>
-                ))}
-                {result.glasses.length === 0 && !result.base && <span>{t('finder.none')}</span>}
-              </div>
-            </div>
-
-            {baseOnly && glassLayers > 0 && !pureGlass && (
-              <div className="finder-base-compare">
-                {t('finder.none')} (N=0): {baseOnly.name}
-                <canvas width={20} height={20} ref={el => { if (el) { const c = el.getContext('2d'); if (c) renderBlock(c, baseOnly) } }} className="finder-mini-block" />
-              </div>
-            )}
           </div>
         )}
       </main>
