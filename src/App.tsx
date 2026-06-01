@@ -257,7 +257,7 @@ export default function App() {
         <button className="theme-btn" onClick={toggleTheme}>{theme === 'dark' ? '☀' : '☾'}</button>
         <button className="lang-btn" onClick={toggleLang}>{t('lang.switch')}</button>
         <button className="nav-btn" onClick={() => setPage(p => p === 'converter' ? 'finder' : 'converter')}>
-          {page === 'converter' ? t('finder.title') : t('app.title')}
+          {page === 'converter' ? t('finder.pageTitle') : t('app.pageTitle')}
         </button>
       </div>
       <header className="header">
@@ -266,8 +266,8 @@ export default function App() {
             <rect width="32" height="32" rx="7" fill="#07070d"/>
             <defs>
               <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#6366f1"/>
-                <stop offset="100%" stop-color="#a78bfa"/>
+                <stop offset="0%" stopColor="#6366f1"/>
+                <stop offset="100%" stopColor="#a78bfa"/>
               </linearGradient>
             </defs>
             <rect x="5" y="5" width="22" height="22" rx="4" fill="url(#g)"/>

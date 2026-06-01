@@ -4,6 +4,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   zh: {
     'app.title': 'Minecraft 玻璃像素画生成器',
     'app.subtitle': '将图片转换为 Minecraft 像素画，通过染色玻璃层精确还原色彩',
+    'app.pageTitle': '像素画',
     'config.title': '参数设置',
     'config.version': 'Minecraft 版本',
     'config.width': '宽度（方块）',
@@ -49,6 +50,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'preview.altOriginal': '原图',
     'lang.switch': 'EN',
     'finder.title': '颜色查找',
+    'finder.pageTitle': '单方块',
     'finder.search': '查找',
     'finder.hint': '输入目标颜色',
     'finder.result': '匹配结果',
@@ -59,6 +61,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   en: {
     'app.title': 'Minecraft GlassPixel Generator',
     'app.subtitle': 'Turn images into Minecraft pixel art, with stained glass layers to nail the colors.',
+    'app.pageTitle': 'Pixel Art',
     'config.title': 'Settings',
     'config.version': 'Minecraft Version',
     'config.width': 'Width (blocks)',
@@ -104,6 +107,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     'preview.altOriginal': 'Original image',
     'lang.switch': '中',
     'finder.title': 'Color Finder',
+    'finder.pageTitle': 'Single Block',
     'finder.search': 'Search',
     'finder.hint': 'Enter target color',
     'finder.result': 'Result',

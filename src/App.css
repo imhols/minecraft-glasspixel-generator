@@ -190,6 +190,12 @@ body::before {
   gap: 28px;
 }
 
+.finder-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -843,7 +849,8 @@ body::before {
     margin-top: 6px;
   }
 
-  .main-layout {
+  .main-layout,
+  .finder-layout {
     grid-template-columns: 1fr;
   }
 
@@ -918,15 +925,18 @@ body::before {
 }
 
 /* ── Color Finder ── */
-.finder-layout {
-  display: flex;
-  gap: 24px;
-  width: 100%;
-}
-
 .finder-input-section {
   padding: 20px;
   margin-bottom: 24px;
+}
+
+.finder-input-section h3 {
+  font-size: 0.7rem;
+  margin-bottom: 18px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .finder-input-row {
@@ -1113,10 +1123,4 @@ body::before {
   font-size: 0.85rem;
   cursor: pointer;
   color: var(--color-text);
-}
-
-@media (max-width: 900px) {
-  .finder-layout {
-    flex-direction: column;
-  }
 }

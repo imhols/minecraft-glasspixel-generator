@@ -1,7 +1,7 @@
 # Minecraft GlassPixel Generator
 
 ## Commands
-- `npm run dev` — Vite dev server at `http://localhost:5173/minecraft-glasspixel-generator/`
+- `npm run dev` — Vite dev server at `http://localhost:5173/minecraft-glasspixel-generator/` (auto hot-reload on file changes, no restart needed)
 - `npm run build` — `tsc -b && vite build` (do both)
 - `npm run lint` — ESLint (runs on `**/*.{ts,tsx}`)
 

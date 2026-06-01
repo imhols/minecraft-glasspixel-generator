@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo, useCallback } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import './StackedPreview.css'
 
 const STACK_SIZE = 256
@@ -70,12 +70,12 @@ export default function StackedPreview({
     schedule()
   }
 
-  const handleMouseDown = useCallback(() => {
+  function handleMouseDown() {
     draggingRef.current = true
     schedule()
     document.addEventListener('mousemove', handleMove)
     document.addEventListener('mouseup', handleUp)
-  }, [])
+  }
 
   useEffect(() => {
     return () => {
