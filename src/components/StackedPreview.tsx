@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect, useMemo, useCallback } from 'react'
 import './StackedPreview.css'
 
 const STACK_SIZE = 256
@@ -48,40 +48,47 @@ export default function StackedPreview({
     })
   }
 
-  useEffect(() => {
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [])
 
-  function handleMouseDown() {
-    draggingRef.current = true
-    schedule()
-  }
 
-  function handleMouseUp() {
-    draggingRef.current = false
-    offsetRef.current = { x: 0, y: 0 }
-    schedule()
-  }
-
-  function handleMouseMove(e: React.MouseEvent) {
+  function handleMove(e: MouseEvent) {
     if (!draggingRef.current || !stageRef.current) return
     const rect = stageRef.current.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
     offsetRef.current = {
-      x: (e.clientX - cx) / rect.width,
-      y: (e.clientY - cy) / rect.height,
+      x: Math.max(-1, Math.min(1, (e.clientX - cx) / rect.width)),
+      y: Math.max(-1, Math.min(1, (e.clientY - cy) / rect.height)),
     }
     schedule()
   }
+
+  function handleUp() {
+    document.removeEventListener('mousemove', handleMove)
+    document.removeEventListener('mouseup', handleUp)
+    draggingRef.current = false
+    offsetRef.current = { x: 0, y: 0 }
+    schedule()
+  }
+
+  const handleMouseDown = useCallback(() => {
+    draggingRef.current = true
+    schedule()
+    document.addEventListener('mousemove', handleMove)
+    document.addEventListener('mouseup', handleUp)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      document.removeEventListener('mousemove', handleMove)
+      document.removeEventListener('mouseup', handleUp)
+    }
+  }, [])
 
   return (
     <div
       className="stacked-preview"
       onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseUp}
     >
       <div ref={stageRef} className="stacked-stage">
         {baseUrl && <img src={baseUrl} alt="Base" className="stacked-layer" />}
