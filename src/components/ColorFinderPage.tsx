@@ -76,6 +76,19 @@ function toHex(v: number) { return Math.max(0, Math.min(255, v)).toString(16).pa
 function rgbToHex(r: number, g: number, b: number) { return `#${toHex(r)}${toHex(g)}${toHex(b)}` }
 
 const STACK_SIZE = 256
+const MAX_HISTORY = 10
+
+interface ColorFinderHistoryEntry {
+  r: number
+  g: number
+  b: number
+  result: BlendResult
+  version: string
+  glassLayers: number
+  pureGlass: boolean
+  survivalFriendly: boolean
+  time: string
+}
 
 export default function ColorFinderPage() {
   const { t } = useLang()
@@ -92,10 +105,13 @@ export default function ColorFinderPage() {
   const [baseUrl, setBaseUrl] = useState('')
   const [textureVersion, setTextureVersion] = useState(0)
   const [searchKey, setSearchKey] = useState(0)
+  const [finderHistory, setFinderHistory] = useState<ColorFinderHistoryEntry[]>([])
 
   const targetCanvasRef = useRef<HTMLCanvasElement>(null)
   const dockMouseX = useMotionValue(Infinity)
-
+  const restoringRef = useRef(false)
+  const prevResultRef = useRef<BlendResult | null>(null)
+  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false })
 
   const handleHexChange = useCallback((value: string) => {
     const rgb = parseHex(value)
@@ -122,6 +138,8 @@ export default function ColorFinderPage() {
     const tg = Math.max(0, Math.min(255, g))
     const tb = Math.max(0, Math.min(255, b))
 
+    lastParamsRef.current = { r: tr, g: tg, b: tb, version, glassLayers, pureGlass, survivalFriendly }
+
     const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
 
     setSearchKey(k => k + 1)
@@ -137,6 +155,44 @@ export default function ColorFinderPage() {
       })
     }
   }, [r, g, b, glassLayers, pureGlass, basePalette, glassPalette])
+
+  useEffect(() => {
+    if (!result || result === prevResultRef.current || restoringRef.current) {
+      restoringRef.current = false
+      return
+    }
+    prevResultRef.current = result
+    const p = lastParamsRef.current
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const entry: ColorFinderHistoryEntry = {
+      r: p.r, g: p.g, b: p.b, result,
+      version: p.version, glassLayers: p.glassLayers,
+      pureGlass: p.pureGlass, survivalFriendly: p.survivalFriendly,
+      time,
+    }
+    setFinderHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY))
+  }, [result])
+
+  const handleHistorySelect = useCallback((entry: ColorFinderHistoryEntry) => {
+    restoringRef.current = true
+    setR(entry.r)
+    setG(entry.g)
+    setB(entry.b)
+    setVersion(entry.version)
+    setGlassLayers(entry.glassLayers)
+    setPureGlass(entry.pureGlass)
+    setSurvivalFriendly(entry.survivalFriendly)
+    setSearchKey(k => k + 1)
+    setResult(entry.result)
+  }, [])
+
+  const handleHistoryDelete = useCallback((i: number) => {
+    setFinderHistory(prev => prev.filter((_, idx) => idx !== i))
+  }, [])
+
+  const handleHistoryClear = useCallback(() => {
+    setFinderHistory([])
+  }, [])
 
   useEffect(() => {
     const canvas = targetCanvasRef.current
@@ -258,6 +314,29 @@ export default function ColorFinderPage() {
             {t('finder.search')}
           </button>
         </div>
+
+        {finderHistory.length > 0 && (
+          <div className="history-panel">
+            <div className="history-header">
+              <h3>{t('history.title')}</h3>
+              <button className="history-clear" onClick={handleHistoryClear}>{t('history.clear')}</button>
+            </div>
+            <div className="history-list">
+              {finderHistory.map((entry, i) => (
+                <div key={i} className="history-item" onClick={() => handleHistorySelect(entry)}>
+                  <div className="finder-history-swatch" style={{ backgroundColor: rgbToHex(entry.r, entry.g, entry.b) }} />
+                  <div className="history-info">
+                    <span className="history-time">{entry.time}</span>
+                    <span className="history-params">
+                      RGB({entry.r},{entry.g},{entry.b}) | {entry.glassLayers}{t('history.layers')}{entry.pureGlass ? ' · PG' : ''}{entry.survivalFriendly ? ' · SF' : ''}
+                    </span>
+                  </div>
+                  <button className="history-del" onClick={e => { e.stopPropagation(); handleHistoryDelete(i) }}>×</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </aside>
 
       <main className="content">

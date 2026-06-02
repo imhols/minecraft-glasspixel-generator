@@ -600,6 +600,14 @@ body {
   border: 1px solid var(--color-hairline);
 }
 
+.finder-history-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  border: 1px solid var(--color-hairline);
+}
+
 .history-info {
   flex: 1;
   min-width: 0;
