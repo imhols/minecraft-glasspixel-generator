@@ -46,7 +46,7 @@
 
 /* ── Body ── */
 body {
-  font-family: var(--font-mono);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   background: var(--color-canvas);
   color: var(--color-ink);
   min-height: 100vh;

@@ -59,16 +59,26 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
 
   // — Zoom state —
   const [shiftHeld, setShiftHeld] = useState(false)
+  const shiftHeldRef = useRef(false)
   const [mouseOnImg, setMouseOnImg] = useState(false)
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Shift' && !e.repeat) setShiftHeld(true)
+      if (e.key === 'Shift' && !e.repeat) {
+        shiftHeldRef.current = true
+        setShiftHeld(true)
+      }
     }
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') setShiftHeld(false)
+      if (e.key === 'Shift') {
+        shiftHeldRef.current = false
+        setShiftHeld(false)
+      }
     }
-    const onBlur = () => setShiftHeld(false)
+    const onBlur = () => {
+      shiftHeldRef.current = false
+      setShiftHeld(false)
+    }
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
     window.addEventListener('blur', onBlur)
@@ -89,7 +99,7 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
   }, [onRelease])
 
   const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!magnifierActive) return
+    if (!shiftHeldRef.current) return
     const rect = e.currentTarget.getBoundingClientRect()
     const pctX = ((e.clientX - rect.left) / rect.width * 100).toFixed(2)
     const pctY = ((e.clientY - rect.top) / rect.height * 100).toFixed(2)
@@ -97,7 +107,7 @@ export default function PreviewCanvas({ result, originalSrc, originalW, original
     for (const img of imgs) {
       img.style.transformOrigin = `${pctX}% ${pctY}%`
     }
-  }, [magnifierActive])
+  }, [])
 
   if (!result) return null
 

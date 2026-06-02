@@ -115,7 +115,7 @@ export default function App() {
   const [excludedBlocks, setExcludedBlocks] = useState<Set<string>>(new Set())
   const [showPreview, setShowPreview] = useState(true)
   const [exportPct, setExportPct] = useState<number | null>(null)
-  const [facing, setFacing] = useState<BlockFacing>('vertical')
+  const [facing, setFacing] = useState<BlockFacing>('horizontal')
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const lastParams = useRef({ glassLayers: 0, pureGlass: false, ditherMode: 'none' as DitherMode, ditherThreshold: 30, survivalFriendly: false, supportGravity: false, keepCoral: false })
 

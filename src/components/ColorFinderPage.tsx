@@ -103,7 +103,7 @@ export default function ColorFinderPage() {
   const [glassLayers, setGlassLayers] = useState(2)
   const [pureGlass, setPureGlass] = useState(false)
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
-  const [facing, setFacing] = useState<BlockFacing>('vertical')
+  const [facing, setFacing] = useState<BlockFacing>('horizontal')
   const [result, setResult] = useState<BlendResult | null>(null)
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
@@ -115,7 +115,7 @@ export default function ColorFinderPage() {
   const dockMouseX = useMotionValue(Infinity)
   const restoringRef = useRef(false)
   const prevResultRef = useRef<BlendResult | null>(null)
-  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false, facing: 'vertical' as BlockFacing })
+  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false, facing: 'horizontal' as BlockFacing })
 
   const handleHexChange = useCallback((value: string) => {
     const rgb = parseHex(value)
