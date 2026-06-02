@@ -1,5 +1,6 @@
 import { processPixels } from '../core/imageProcessor'
 import type { DitherMode, ProcessPixelsOptions } from '../core/imageProcessor'
+import type { BlockFacing } from '../core/colorMatcher'
 import type { PaletteBlock } from '../data/palettes'
 
 export interface ProcessTask {
@@ -14,6 +15,7 @@ export interface ProcessTask {
   pureGlass: boolean
   ditherMode: DitherMode
   ditherThreshold: number
+  facing: BlockFacing
 }
 
 export interface ProgressMessage {
@@ -50,7 +52,7 @@ self.onmessage = async (e: MessageEvent<ProcessTask>) => {
   const task = e.data
   if (task.type !== 'process') return
 
-  const { raw, width, height, palette, glassLayers, glassPalette, pureGlass, ditherMode, ditherThreshold, taskId } = task
+  const { raw, width, height, palette, glassLayers, glassPalette, pureGlass, ditherMode, ditherThreshold, facing, taskId } = task
   const sendProgress = (pct: number) => self.postMessage({ type: 'progress', taskId, pct } as ProgressMessage)
 
   const options: ProcessPixelsOptions & { onProgress: (pct: number) => void } = {
@@ -59,6 +61,7 @@ self.onmessage = async (e: MessageEvent<ProcessTask>) => {
     pureGlass,
     ditherMode,
     ditherThreshold,
+    facing,
     onProgress: (pct: number) => sendProgress(pct * 0.80),
   }
 

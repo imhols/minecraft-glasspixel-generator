@@ -3,13 +3,15 @@ import type { PaletteBlock } from '../data/palettes'
 import { getBlocks, getGlassBlocks } from '../data/palettes'
 import { applyColorOverrides } from '../data/colorOverrides'
 import { filterSurvival } from '../data/survival'
-import { findClosestBlockRGB, findBestBlend } from '../core/colorMatcher'
+import { findBestOrientedBlock, findBestBlend } from '../core/colorMatcher'
 import type { BlendResult } from '../core/colorMatcher'
 import { useLang } from '../i18n/LangContext'
 import { renderBlock, renderColorSwatch, BLOCK_SIZE } from './BlockRenderer'
 import { preloadTextures } from './textureLoader'
 import StackedPreview from './StackedPreview'
 import { motion, useMotionValue, useTransform, useSpring } from 'motion/react'
+import type { BlockFacing } from '../core/facingFilter'
+import { applyFacing } from '../core/facingFilter'
 
 function DockBlockItem({
   block,
@@ -87,6 +89,7 @@ interface ColorFinderHistoryEntry {
   glassLayers: number
   pureGlass: boolean
   survivalFriendly: boolean
+  facing: string
   time: string
 }
 
@@ -100,6 +103,7 @@ export default function ColorFinderPage() {
   const [glassLayers, setGlassLayers] = useState(2)
   const [pureGlass, setPureGlass] = useState(false)
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
+  const [facing, setFacing] = useState<BlockFacing>('vertical')
   const [result, setResult] = useState<BlendResult | null>(null)
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
@@ -111,7 +115,7 @@ export default function ColorFinderPage() {
   const dockMouseX = useMotionValue(Infinity)
   const restoringRef = useRef(false)
   const prevResultRef = useRef<BlendResult | null>(null)
-  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false })
+  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false, facing: 'vertical' as BlockFacing })
 
   const handleHexChange = useCallback((value: string) => {
     const rgb = parseHex(value)
@@ -126,8 +130,9 @@ export default function ColorFinderPage() {
     let p = getBlocks(version)
     p = applyColorOverrides(p)
     if (survivalFriendly) p = filterSurvival(p)
+    p = applyFacing(p, facing)
     return p
-  }, [version, survivalFriendly])
+  }, [version, survivalFriendly, facing])
 
   const glassPalette = useMemo(() => {
     return glassLayers > 0 ? getGlassBlocks(version) : []
@@ -138,23 +143,23 @@ export default function ColorFinderPage() {
     const tg = Math.max(0, Math.min(255, g))
     const tb = Math.max(0, Math.min(255, b))
 
-    lastParamsRef.current = { r: tr, g: tg, b: tb, version, glassLayers, pureGlass, survivalFriendly }
-
-    const baseMatch = findClosestBlockRGB(tr, tg, tb, basePalette)
+    lastParamsRef.current = { r: tr, g: tg, b: tb, version, glassLayers, pureGlass, survivalFriendly, facing }
 
     setSearchKey(k => k + 1)
 
     if (glassLayers > 0 && glassPalette.length > 0) {
-      const blend = findBestBlend(tr, tg, tb, basePalette, glassPalette, glassLayers, pureGlass)
+      const blend = findBestBlend(tr, tg, tb, basePalette, glassPalette, glassLayers, pureGlass, facing)
       setResult(blend)
     } else {
+      const oriented = findBestOrientedBlock(tr, tg, tb, basePalette, facing)
       setResult({
         glasses: [],
-        base: baseMatch,
-        color: baseMatch.color,
+        base: oriented.block,
+        baseOrientation: oriented.orientation,
+        color: oriented.color,
       })
     }
-  }, [r, g, b, glassLayers, pureGlass, basePalette, glassPalette])
+  }, [r, g, b, glassLayers, pureGlass, basePalette, glassPalette, facing])
 
   useEffect(() => {
     if (!result || result === prevResultRef.current || restoringRef.current) {
@@ -168,6 +173,7 @@ export default function ColorFinderPage() {
       r: p.r, g: p.g, b: p.b, result,
       version: p.version, glassLayers: p.glassLayers,
       pureGlass: p.pureGlass, survivalFriendly: p.survivalFriendly,
+      facing: p.facing,
       time,
     }
     setFinderHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY))
@@ -182,6 +188,7 @@ export default function ColorFinderPage() {
     setGlassLayers(entry.glassLayers)
     setPureGlass(entry.pureGlass)
     setSurvivalFriendly(entry.survivalFriendly)
+    setFacing(entry.facing === 'all' ? 'vertical' : entry.facing as BlockFacing)
     setSearchKey(k => k + 1)
     setResult(entry.result)
   }, [])
@@ -310,6 +317,15 @@ export default function ColorFinderPage() {
             </label>
           </div>
 
+          <div className="config-group">
+            <label>{t('config.facing')}</label>
+            <select value={facing} onChange={e => setFacing(e.target.value as BlockFacing)}>
+              <option value="vertical">{t('config.facing.vertical')}</option>
+              <option value="horizontal">{t('config.facing.horizontal')}</option>
+            </select>
+            <span className="hint">{t('config.facingHint')}</span>
+          </div>
+
           <button className="convert-btn" onClick={handleSearch}>
             {t('finder.search')}
           </button>
@@ -328,7 +344,7 @@ export default function ColorFinderPage() {
                   <div className="history-info">
                     <span className="history-time">{entry.time}</span>
                     <span className="history-params">
-                      RGB({entry.r},{entry.g},{entry.b}) | {entry.glassLayers}{t('history.layers')}{entry.pureGlass ? ' · PG' : ''}{entry.survivalFriendly ? ' · SF' : ''}
+                      RGB({entry.r},{entry.g},{entry.b}) | {entry.glassLayers}{t('history.layers')}{entry.pureGlass ? ' · PG' : ''}{entry.survivalFriendly ? ' · SF' : ''}{entry.facing !== 'vertical' ? ' · H' : ' · V'}
                     </span>
                   </div>
                   <button className="history-del" onClick={e => { e.stopPropagation(); handleHistoryDelete(i) }}>×</button>

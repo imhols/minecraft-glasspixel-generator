@@ -15,6 +15,7 @@
 | Image processing | `core/imageProcessor.ts` | Pixel extraction + match |
 | Schematic export | `core/schematicExporter.ts` | `.schem` / `.schematic` / `.litematic` |
 | Palette data | `data/palettes.ts` | Block colors + version filter |
+| Texture sides | `data/textureSides.ts` | Per-texture entries with sides + orientation group (auto-generated) |
 | NBT writer | `core/nbtWriter.ts` | Binary NBT (Sponge v2, MCEdit, Litematica) |
 | i18n | `src/i18n/LangContext.tsx` | zh/en switching via React context |
 | Preview | `components/PreviewCanvas.tsx` | Image + hold-to-compare |
@@ -46,6 +47,15 @@
 `getGlassBlocks(version)` — 16 stained glass only (filters by `*_stained_glass`).  
 Both cache via `BLOCKS.filter()` (new array each call).
 
+## Texture sides (facing filter)
+
+`src/data/textureSides.ts` is auto-generated — each entry is one texture file with its average color and the block-faces it covers. Orientation groups (`axis/facing/fixed`) come from blockstate JSON parsing (via `classify-faces.mjs`), not inferred from texture names.
+
+- `side` face name → `["north", "south", "east", "west"]` (all 4 horizontals)
+- `top` → `["top"]`, `bottom` → `["bottom"]`, `front` → `["front"]`, `back` → `["back"]`
+- Facing filter (`src/core/facingFilter.ts`): `horizontal` → top/bottom entries (overhead view); `vertical` → north/south/east/west/front/back entries (eye-level view)
+- `colorMatcher.ts` uses the same data for orientation expansion (axis-y vs axis-x/z vs facing variants)
+
 ## Updating the block palette
 
 The palette (`src/data/palettes.ts`) is auto-generated from real game textures by downloading each MC version's JAR and computing average RGB.
@@ -56,6 +66,9 @@ npm ci   # if first time (needs adm-zip + pngjs)
 node generate-palette.mjs   # downloads cache (~2 min first run, then cached)
 node curate.mjs              # filters non-full blocks, merges old/new naming
 copy output/curated-palettes.ts ../src/data/palettes.ts
+node classify-faces.mjs      # blockstate-based facing classification (129 blocks)
+node build-texture-sides.mjs # generates textureSides.ts from face-colors.json + classification
+copy output/texture-sides.ts ../src/data/textureSides.ts
 ```
 
 Cached per-version data lives in `scripts/output/`. Delete individual `{version}.json` to re-fetch a specific version.

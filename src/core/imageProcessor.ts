@@ -1,5 +1,6 @@
 import type { PaletteBlock } from '../data/palettes'
 import { findBestBlend, findBestOrientedBlock } from './colorMatcher'
+import type { BlockFacing } from './colorMatcher'
 import type { BlockOrientation } from '../types'
 
 export type DitherMode = 'none' | 'floyd-steinberg' | 'jarvis-judice-ninke' | 'atkinson' | 'sierra-lite'
@@ -84,6 +85,7 @@ export interface ProcessPixelsOptions {
   pureGlass?: boolean
   ditherMode?: DitherMode
   ditherThreshold?: number
+  facing?: BlockFacing
   onProgress?: (pct: number) => void
 }
 
@@ -100,6 +102,7 @@ export async function processPixels(
     pureGlass = false,
     ditherMode = undefined,
     ditherThreshold = 30,
+    facing = 'vertical',
     onProgress = undefined,
   } = options ?? {}
 
@@ -158,7 +161,7 @@ export async function processPixels(
       }
 
       if (multiLayer) {
-        const res = findBestBlend(r, g, b, palette, glassPalette, glassLayers, pureGlass)
+        const res = findBestBlend(r, g, b, palette, glassPalette, glassLayers, pureGlass, facing)
         row.push(res.color)
         bRow.push(res.base)
         oRow.push(res.baseOrientation)
@@ -172,7 +175,7 @@ export async function processPixels(
           }
         }
       } else {
-        const ob = findBestOrientedBlock(r, g, b, palette)
+        const ob = findBestOrientedBlock(r, g, b, palette, facing)
         const mc = ob.color
         row.push([mc[0], mc[1], mc[2]])
         bRow.push(ob.block)

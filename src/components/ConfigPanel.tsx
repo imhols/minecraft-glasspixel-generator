@@ -1,4 +1,5 @@
 import type { DitherMode } from '../core/imageProcessor'
+import type { BlockFacing } from '../core/facingFilter'
 import { MC_VERSIONS } from '../data/palettes'
 import { useLang } from '../i18n/LangContext'
 
@@ -10,7 +11,12 @@ const DITHER_OPTIONS: { value: DitherMode; labelKey: string }[] = [
   { value: 'sierra-lite', labelKey: 'config.dither.sierra' },
 ]
 
-export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, onDitherModeChange, pureGlass, onPureGlassChange, ditherThreshold, onDitherThresholdChange, survivalFriendly, onSurvivalFriendlyChange, supportGravity, onSupportGravityChange, keepCoral, onKeepCoralChange, showPreview, onShowPreviewChange }: {
+const FACING_OPTIONS: { value: BlockFacing; labelKey: string }[] = [
+  { value: 'vertical', labelKey: 'config.facing.vertical' },
+  { value: 'horizontal', labelKey: 'config.facing.horizontal' },
+]
+
+export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, onDitherModeChange, pureGlass, onPureGlassChange, ditherThreshold, onDitherThresholdChange, survivalFriendly, onSurvivalFriendlyChange, supportGravity, onSupportGravityChange, keepCoral, onKeepCoralChange, showPreview, onShowPreviewChange, facing, onFacingChange }: {
   onConvert: () => void
   loading: boolean
   hasImage: boolean
@@ -28,6 +34,8 @@ export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, 
   onKeepCoralChange: (b: boolean) => void
   showPreview: boolean
   onShowPreviewChange: (b: boolean) => void
+  facing: BlockFacing
+  onFacingChange: (f: BlockFacing) => void
 }) {
   const { t } = useLang()
   return (
@@ -112,6 +120,16 @@ export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, 
           <span className="hint">{t('config.ditherThresholdHint')}</span>
         </div>
       )}
+
+      <div className="config-group">
+        <label>{t('config.facing')}</label>
+        <select value={facing} onChange={e => onFacingChange(e.target.value as BlockFacing)}>
+          {FACING_OPTIONS.map(o => (
+            <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
+          ))}
+        </select>
+        <span className="hint">{t('config.facingHint')}</span>
+      </div>
 
       <button
         className="convert-btn"

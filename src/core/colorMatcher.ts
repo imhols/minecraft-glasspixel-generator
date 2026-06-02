@@ -1,8 +1,10 @@
 import type { PaletteBlock } from '../data/palettes'
-import { DIRECTIONAL_BLOCKS } from '../data/faceColors'
+import { TEXTURE_SIDES, type TextureSideEntry } from '../data/textureSides'
 import type { BlockOrientation } from '../types'
 import { buildKDTree, nearest } from './kdTree'
 import type { KDNode } from './kdTree'
+
+export type BlockFacing = 'vertical' | 'horizontal'
 
 function labFromRgb(sr: number, sg: number, sb: number): [number, number, number] {
   let r = sr / 255, g = sg / 255, b = sb / 255
@@ -54,9 +56,6 @@ export function findClosestBlock(r: number, g: number, b: number, palette: Palet
   }
   return best!
 }
-
-const FACING_DIRS: ('up' | 'down' | 'north' | 'south' | 'east' | 'west')[] = ['up', 'down', 'north', 'south', 'east', 'west']
-const AXIS_DIRS: ('x' | 'y' | 'z')[] = ['y', 'x', 'z']
 
 function tryBlock(r: number, g: number, b: number, color: [number, number, number]): number {
   const dr = r - color[0], dg = g - color[1], db = b - color[2]
@@ -184,47 +183,67 @@ interface FlatBlockEntry {
 let _flatBase: FlatBlockEntry[] = []
 let _flatBaseSrc: PaletteBlock[] = []
 
-function getFlatBase(palette: PaletteBlock[]): FlatBlockEntry[] {
-  if (_flatBaseSrc === palette && _flatBase.length > 0) return _flatBase
+function getFlatBase(palette: PaletteBlock[], facing: BlockFacing): FlatBlockEntry[] {
+  if (_flatBaseSrc === palette && _flatBase.length > 0 && _lastFacing === facing) return _flatBase
   _flatBaseSrc = palette
+  _lastFacing = facing
   _flatBase = []
+  // 竖直 (vertical) = pixel art stood up, viewer sees side → side textures
+  // 水平 (horizontal) = pixel art flat on ground, viewer sees top → top textures
+  const useSide = facing === 'vertical'
   for (const block of palette) {
-    const dirInfo = DIRECTIONAL_BLOCKS[block.id]
-    if (!dirInfo) {
+    const dirData = TEXTURE_SIDES[block.id]
+    if (!dirData) {
       _flatBase.push({ block, color: block.color })
       continue
     }
-    const { faces, group } = dirInfo
+    const { entries, group } = dirData
+    const find = (side: string) => {
+      const e = entries.find((e: TextureSideEntry) => e.sides.includes(side as TextureSideEntry['sides'][number]))
+      return e ? e.rgb : undefined
+    }
+    const findAny = (sides: string[]) => {
+      const e = entries.find((e: TextureSideEntry) => sides.some(s => e.sides.includes(s as TextureSideEntry['sides'][number])))
+      return e ? e.rgb : undefined
+    }
     if (group === 'axis') {
-      for (const axis of AXIS_DIRS) {
-        _flatBase.push({
-          block,
-          color: axis === 'y' ? (faces.top || block.color) : (faces.side || block.color),
-          orientation: { axis },
-        })
+      if (useSide) {
+        const sideColor = findAny(['north', 'south', 'east', 'west']) || block.color
+        _flatBase.push({ block, color: sideColor, orientation: { axis: 'x' } })
+        _flatBase.push({ block, color: sideColor, orientation: { axis: 'z' } })
+      } else {
+        _flatBase.push({ block, color: find('top') || block.color, orientation: { axis: 'y' } })
       }
     } else if (group === 'fixed') {
-      _flatBase.push({ block, color: faces.top || block.color })
+      const color = useSide
+        ? (findAny(['north', 'south', 'east', 'west']) || find('front') || find('back') || block.color)
+        : (find('top') || block.color)
+      _flatBase.push({ block, color })
     } else if (group === 'facing') {
-      for (const facing of FACING_DIRS) {
-        _flatBase.push({
-          block,
-          color: facing === 'up' ? (faces.top || block.color)
-            : facing === 'down' ? (faces.bottom || faces.top || block.color)
-            : (faces.front || faces.side || block.color),
-          orientation: { facing },
-        })
+      const topColor = find('top') || block.color
+      const bottomColor = find('bottom') || find('top') || block.color
+      const horizontalColor = find('front') || findAny(['north', 'south', 'east', 'west']) || block.color
+      if (useSide) {
+        for (const facingDir of (['north', 'south', 'east', 'west'] as const)) {
+          _flatBase.push({ block, color: horizontalColor, orientation: { facing: facingDir } })
+        }
+      } else {
+        _flatBase.push({ block, color: topColor, orientation: { facing: 'up' } })
+        _flatBase.push({ block, color: bottomColor, orientation: { facing: 'down' } })
       }
     }
   }
   return _flatBase
 }
 
+let _lastFacing: BlockFacing = 'vertical'
+
 export function findBestOrientedBlock(
   tr: number, tg: number, tb: number,
   palette: PaletteBlock[],
+  facing: BlockFacing = 'vertical',
 ): { block: PaletteBlock; color: [number, number, number]; orientation?: BlockOrientation } {
-  const entries = getFlatBase(palette)
+  const entries = getFlatBase(palette, facing)
   let best = entries[0]
   let bestDist = tryBlock(tr, tg, tb, entries[0].color)
   for (let i = 1; i < entries.length; i++) {
@@ -240,8 +259,9 @@ export function findBestBlend(
   glassPalette: PaletteBlock[],
   glassLayers: number,
   pureGlass?: boolean,
+  facing: BlockFacing = 'vertical',
 ): BlendResult {
-  const orientedBase = pureGlass ? null : findBestOrientedBlock(tr, tg, tb, basePalette)
+  const orientedBase = pureGlass ? null : findBestOrientedBlock(tr, tg, tb, basePalette, facing)
   const base = orientedBase?.block ?? null
   const baseOrientation = orientedBase?.orientation
   let best: BlendResult | null = null

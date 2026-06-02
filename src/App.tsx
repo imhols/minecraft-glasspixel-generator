@@ -6,6 +6,7 @@ import type { BlockOrientation } from './types'
 import { getBlocks, getGlassBlocks } from './data/palettes'
 import { filterSurvival } from './data/survival'
 import { applyColorOverrides } from './data/colorOverrides'
+import type { BlockFacing } from './core/facingFilter'
 import type { ProcessResultMessage } from './worker/processor.worker'
 import ImageUploader from './components/ImageUploader'
 import ConfigPanel from './components/ConfigPanel'
@@ -112,6 +113,7 @@ export default function App() {
   const [keepCoral, setKeepCoral] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
   const [exportPct, setExportPct] = useState<number | null>(null)
+  const [facing, setFacing] = useState<BlockFacing>('vertical')
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const lastParams = useRef({ glassLayers: 0, pureGlass: false, ditherMode: 'none' as DitherMode, ditherThreshold: 30, survivalFriendly: false, supportGravity: false, keepCoral: false })
 
@@ -195,11 +197,12 @@ export default function App() {
         pureGlass,
         ditherMode,
         ditherThreshold,
+        facing,
       }, [raw.buffer])
     } catch {
       setLoading(false)
     }
-  }, [sourceFile, ditherMode, pureGlass, ditherThreshold, survivalFriendly, supportGravity, keepCoral])
+  }, [sourceFile, ditherMode, pureGlass, ditherThreshold, survivalFriendly, supportGravity, keepCoral, facing])
 
   // Save to history when result changes (skip when restoring from history)
   const restoringRef = useRef(false)
@@ -290,7 +293,8 @@ export default function App() {
             survivalFriendly={survivalFriendly} onSurvivalFriendlyChange={setSurvivalFriendly}
             supportGravity={supportGravity} onSupportGravityChange={setSupportGravity}
             keepCoral={keepCoral} onKeepCoralChange={setKeepCoral}
-            showPreview={showPreview} onShowPreviewChange={setShowPreview} />
+            showPreview={showPreview} onShowPreviewChange={setShowPreview}
+            facing={facing} onFacingChange={setFacing} />
           <HistoryPanel entries={history} onSelect={handleHistorySelect} onDelete={handleHistoryDelete} onClear={handleHistoryClear} />
           <ExportButton result={result} version={version} supportGravity={supportGravity} keepCoral={keepCoral} onExportChange={setExportPct} />
         </aside>
