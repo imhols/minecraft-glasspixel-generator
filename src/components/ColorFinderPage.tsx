@@ -12,6 +12,7 @@ import StackedPreview from './StackedPreview'
 import { motion, useMotionValue, useTransform, useSpring } from 'motion/react'
 import type { BlockFacing } from '../core/facingFilter'
 import { applyFacing } from '../core/facingFilter'
+import BlockFilter from './BlockFilter'
 
 function DockBlockItem({
   block,
@@ -67,6 +68,32 @@ function DockBlockItem({
   )
 }
 
+function BlockFilterModal({ excluded, onChange }: { excluded: Set<string>; onChange: (ids: Set<string>) => void }) {
+  const { t } = useLang()
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button className="bf-open-btn" onClick={() => setOpen(true)}>
+        {t('config.blockFilter')}
+      </button>
+      {open && (
+        <div className="bf-overlay" onClick={() => setOpen(false)}>
+          <div className="bf-modal" onClick={e => e.stopPropagation()}>
+            <div className="bf-modal-header">
+              <span>{t('config.blockFilter')}</span>
+              <button className="bf-modal-close" onClick={() => setOpen(false)}>&#x2715;</button>
+            </div>
+            <div className="bf-modal-body">
+              <BlockFilter excluded={excluded} onChange={onChange} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function parseHex(hex: string): [number, number, number] | null {
   const m = hex.match(/^#?([0-9a-fA-F]{6})$/)
   if (!m) return null
@@ -90,6 +117,7 @@ interface ColorFinderHistoryEntry {
   pureGlass: boolean
   survivalFriendly: boolean
   facing: string
+  excludedBlocks: Set<string>
   time: string
 }
 
@@ -104,6 +132,7 @@ export default function ColorFinderPage() {
   const [pureGlass, setPureGlass] = useState(false)
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
   const [facing, setFacing] = useState<BlockFacing>('horizontal')
+  const [excludedBlocks, setExcludedBlocks] = useState<Set<string>>(new Set())
   const [result, setResult] = useState<BlendResult | null>(null)
   const [layerUrls, setLayerUrls] = useState<{ src: string; zOffset: number }[]>([])
   const [baseUrl, setBaseUrl] = useState('')
@@ -115,7 +144,7 @@ export default function ColorFinderPage() {
   const dockMouseX = useMotionValue(Infinity)
   const restoringRef = useRef(false)
   const prevResultRef = useRef<BlendResult | null>(null)
-  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false, facing: 'horizontal' as BlockFacing })
+  const lastParamsRef = useRef({ r: 128, g: 128, b: 128, version: '1.21', glassLayers: 2, pureGlass: false, survivalFriendly: false, facing: 'horizontal' as BlockFacing, excludedBlocks: new Set<string>() })
 
   const handleHexChange = useCallback((value: string) => {
     const rgb = parseHex(value)
@@ -130,20 +159,23 @@ export default function ColorFinderPage() {
     let p = getBlocks(version)
     p = applyColorOverrides(p)
     if (survivalFriendly) p = filterSurvival(p)
+    if (excludedBlocks.size > 0) p = p.filter(b => !excludedBlocks.has(b.id))
     p = applyFacing(p, facing)
     return p
-  }, [version, survivalFriendly, facing])
+  }, [version, survivalFriendly, facing, excludedBlocks])
 
   const glassPalette = useMemo(() => {
-    return glassLayers > 0 ? getGlassBlocks(version) : []
-  }, [version, glassLayers])
+    let p = glassLayers > 0 ? getGlassBlocks(version) : []
+    if (excludedBlocks.size > 0 && p.length > 0) p = p.filter(b => !excludedBlocks.has(b.id))
+    return p
+  }, [version, glassLayers, excludedBlocks])
 
   const handleSearch = useCallback(() => {
     const tr = Math.max(0, Math.min(255, r))
     const tg = Math.max(0, Math.min(255, g))
     const tb = Math.max(0, Math.min(255, b))
 
-    lastParamsRef.current = { r: tr, g: tg, b: tb, version, glassLayers, pureGlass, survivalFriendly, facing }
+    lastParamsRef.current = { r: tr, g: tg, b: tb, version, glassLayers, pureGlass, survivalFriendly, facing, excludedBlocks }
 
     setSearchKey(k => k + 1)
 
@@ -173,7 +205,7 @@ export default function ColorFinderPage() {
       r: p.r, g: p.g, b: p.b, result,
       version: p.version, glassLayers: p.glassLayers,
       pureGlass: p.pureGlass, survivalFriendly: p.survivalFriendly,
-      facing: p.facing,
+      facing: p.facing, excludedBlocks: p.excludedBlocks,
       time,
     }
     setFinderHistory(prev => [entry, ...prev].slice(0, MAX_HISTORY))
@@ -189,6 +221,7 @@ export default function ColorFinderPage() {
     setPureGlass(entry.pureGlass)
     setSurvivalFriendly(entry.survivalFriendly)
     setFacing(entry.facing === 'all' ? 'vertical' : entry.facing as BlockFacing)
+    setExcludedBlocks(new Set(entry.excludedBlocks))
     setSearchKey(k => k + 1)
     setResult(entry.result)
   }, [])
@@ -324,6 +357,10 @@ export default function ColorFinderPage() {
               <option value="horizontal">{t('config.facing.horizontal')}</option>
             </select>
             <span className="hint">{t('config.facingHint')}</span>
+          </div>
+
+          <div className="config-group config-filter-row">
+            <BlockFilterModal excluded={excludedBlocks} onChange={setExcludedBlocks} />
           </div>
 
           <button className="convert-btn" onClick={handleSearch}>
