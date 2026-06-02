@@ -112,6 +112,7 @@ export default function App() {
   const [survivalFriendly, setSurvivalFriendly] = useState(false)
   const [supportGravity, setSupportGravity] = useState(false)
   const [keepCoral, setKeepCoral] = useState(false)
+  const [excludedBlocks, setExcludedBlocks] = useState<Set<string>>(new Set())
   const [showPreview, setShowPreview] = useState(true)
   const [exportPct, setExportPct] = useState<number | null>(null)
   const [facing, setFacing] = useState<BlockFacing>('vertical')
@@ -142,25 +143,28 @@ export default function App() {
     setLoading(true)
     setProgress(0)
 
-    const sel = document.getElementById('version-select') as HTMLSelectElement
     const widthInput = document.getElementById('width-input') as HTMLInputElement
     const glassSelect = document.getElementById('glass-layers') as HTMLSelectElement
-    const v = sel?.value || '1.21'
     const w = parseInt(widthInput?.value || '64')
     const glassLayers = parseInt(glassSelect?.value || '0')
     lastParams.current = { glassLayers, pureGlass, ditherMode, ditherThreshold, survivalFriendly, supportGravity, keepCoral }
 
-    setVersion(v)
     setProgress(2)
 
     try {
       const img = await loadImage(sourceFile)
       setProgress(5)
       const h = Math.round(w * (img.naturalHeight / img.naturalWidth))
-      let basePalette = getBlocks(v)
+      let basePalette = getBlocks(version)
       basePalette = applyColorOverrides(basePalette)
       if (survivalFriendly) basePalette = filterSurvival(basePalette)
-      const glassPalette = glassLayers > 0 ? getGlassBlocks(v) : []
+      if (excludedBlocks.size > 0) {
+        basePalette = basePalette.filter(b => !excludedBlocks.has(b.id))
+      }
+      let glassPalette = glassLayers > 0 ? getGlassBlocks(version) : []
+      if (excludedBlocks.size > 0 && glassPalette.length > 0) {
+        glassPalette = glassPalette.filter(b => !excludedBlocks.has(b.id))
+      }
 
       // Extract raw pixels on main thread
       const raw = extractRawFromImage(img, w, h)
@@ -203,7 +207,7 @@ export default function App() {
     } catch {
       setLoading(false)
     }
-  }, [sourceFile, ditherMode, pureGlass, ditherThreshold, survivalFriendly, supportGravity, keepCoral, facing])
+  }, [sourceFile, version, ditherMode, pureGlass, ditherThreshold, survivalFriendly, supportGravity, keepCoral, facing, excludedBlocks])
 
   // Save to history when result changes (skip when restoring from history)
   const restoringRef = useRef(false)
@@ -295,7 +299,9 @@ export default function App() {
             supportGravity={supportGravity} onSupportGravityChange={setSupportGravity}
             keepCoral={keepCoral} onKeepCoralChange={setKeepCoral}
             showPreview={showPreview} onShowPreviewChange={setShowPreview}
-            facing={facing} onFacingChange={setFacing} />
+            facing={facing} onFacingChange={setFacing}
+            excluded={excludedBlocks} onBlockFilterChange={setExcludedBlocks}
+            version={version} onVersionChange={setVersion} />
           <HistoryPanel entries={history} onSelect={handleHistorySelect} onDelete={handleHistoryDelete} onClear={handleHistoryClear} />
           <ExportButton result={result} version={version} supportGravity={supportGravity} keepCoral={keepCoral} onExportChange={setExportPct} />
         </aside>

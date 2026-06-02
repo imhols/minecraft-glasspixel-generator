@@ -822,6 +822,336 @@ body {
   color: var(--color-ink);
 }
 
+/* ── Block Filter ── */
+.block-filter-root {
+  font-size: 13px;
+}
+
+.bf-all-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--color-ink);
+  user-select: none;
+  margin-bottom: 4px;
+  transition: border-color 0.15s;
+}
+
+.bf-all-row:hover {
+  border-color: var(--color-ink);
+}
+
+.bf-all-row input[type="checkbox"],
+.bf-preset-label input[type="checkbox"],
+.bf-block-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.bf-preset {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+
+.bf-preset-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bf-preset-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--color-body);
+  cursor: pointer;
+}
+
+.bf-preset-label:hover {
+  color: var(--color-ink);
+}
+
+.bf-collapse-btn {
+  border: none;
+  background: none;
+  color: var(--color-mute);
+  font-size: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: transform 0.15s;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.bf-collapse-btn.expanded {
+  transform: rotate(90deg);
+}
+
+.bf-preset-body {
+  border-top: 1px solid var(--color-hairline);
+  padding: 2px 0;
+}
+
+.bf-search-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.bf-search {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 28px 6px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.bf-search:focus {
+  border-color: var(--color-ink);
+}
+
+.bf-search::placeholder {
+  color: var(--color-mute);
+  font-family: var(--font-mono);
+}
+
+.bf-search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.bf-search-clear:hover {
+  color: var(--color-ink);
+}
+
+.bf-search-results {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.bf-search-results {
+  padding: 8px;
+}
+
+.bf-swatch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bf-swatch-cell {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid var(--color-hairline);
+  background: var(--color-surface-soft);
+  transition: border-color 0.15s, opacity 0.15s;
+}
+
+.bf-swatch-cell:hover {
+  border-color: var(--color-ink);
+}
+
+.bf-swatch-cell.excluded {
+  opacity: 0.35;
+  border-color: var(--color-mute);
+}
+
+.bf-swatch-cell input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.bf-swatch-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bf-excluded-section {
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.bf-excluded-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-body);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--color-hairline);
+  background: var(--color-surface-soft);
+}
+
+.bf-excluded-body {
+  padding: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.bf-search-empty {
+  padding: 12px 8px;
+  text-align: center;
+  color: var(--color-mute);
+  font-size: 12px;
+}
+
+.bf-block-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 20px;
+  font-size: 12px;
+  color: var(--color-body);
+  cursor: pointer;
+  user-select: none;
+}
+
+.bf-block-row:hover {
+  background: var(--color-surface-soft);
+}
+
+.bf-block-name {
+  flex-shrink: 0;
+}
+
+.bf-block-id {
+  color: var(--color-mute);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.bf-color-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid var(--color-hairline);
+  flex-shrink: 0;
+}
+
+.bf-count {
+  color: var(--color-mute);
+  font-size: 11px;
+  margin-left: auto;
+  padding: 0 4px;
+}
+
+/* ── Block Filter Modal ── */
+
+.config-filter-row {
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+.bf-open-btn {
+  background: none;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  color: var(--color-body);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+
+.bf-open-btn:hover {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+.bf-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bf-modal {
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius);
+  max-width: 440px;
+  width: 92%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bf-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.bf-modal-close {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.bf-modal-close:hover {
+  color: var(--color-ink);
+}
+
+.bf-modal-body {
+  padding: 10px 14px 14px;
+  overflow-y: auto;
+}
+
 /* ── Content ── */
 .content {
   display: flex;
