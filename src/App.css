@@ -84,6 +84,12 @@ body {
   color: var(--color-ink);
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .subtitle {
   color: var(--color-mute);
   font-size: 14px;
@@ -247,10 +253,6 @@ body {
 .theme-btn,
 .nav-btn,
 .upload-bar-btn,
-.lang-btn,
-.theme-btn,
-.nav-btn,
-.upload-bar-btn,
 .export-btn,
 .convert-btn {
   display: inline-flex;
@@ -261,8 +263,9 @@ body {
   background: var(--color-canvas);
   color: var(--color-mute);
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 2;
+  padding: 4px 12px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
@@ -290,11 +293,6 @@ body {
   color: var(--color-ash);
   cursor: not-allowed;
   pointer-events: none;
-}
-
-.nav-btn,
-.upload-bar-btn {
-  font-size: 12px;
 }
 
 /* ── Upload ── */

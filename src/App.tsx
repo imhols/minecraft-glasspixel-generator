@@ -262,7 +262,7 @@ export default function App() {
       </div>
       <header className="header">
         <div className="header-row">
-          <svg className="header-icon" width="28" height="28" viewBox="0 0 32 32">
+          <svg className="header-icon" width="28" height="28" viewBox="0 0 32 32" style={{display:'block'}}>
             <rect width="32" height="32" rx="7" fill="#07070d"/>
             <defs>
               <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
