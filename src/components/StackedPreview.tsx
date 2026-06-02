@@ -31,24 +31,19 @@ export default function StackedPreview({
 
   function applyTransforms() {
     const { x, y } = offsetRef.current
-    const dragging = draggingRef.current
     const tiltMag = Math.min(1, Math.sqrt(x * x + y * y))
     const gapBoost = 1 + tiltMag * 4
 
     if (stageRef.current) {
-      stageRef.current.style.transform = dragging
-        ? `perspective(800px) rotateX(${-y * 20}deg) rotateY(${x * 20}deg)`
-        : ''
+      stageRef.current.style.transform = `perspective(800px) rotateX(${-y * 20}deg) rotateY(${x * 20}deg)`
     }
 
     layerRefs.current.forEach((el, i) => {
       if (!el) return
-      const factor = dragging ? depths[i] * gapBoost : 0
+      const factor = depths[i] * gapBoost
       el.style.transform = `translate(${x * factor * STACK_SIZE}px, ${y * factor * STACK_SIZE}px)`
     })
   }
-
-
 
   function handleMove(e: MouseEvent) {
     if (!draggingRef.current || !stageRef.current) return
@@ -67,10 +62,31 @@ export default function StackedPreview({
     document.removeEventListener('mouseup', handleUp)
     draggingRef.current = false
     offsetRef.current = { x: 0, y: 0 }
+
+    const dur = '0.35s'
+    const easing = 'cubic-bezier(0.05, 0.7, 0.1, 1)'
+    if (stageRef.current) {
+      stageRef.current.style.transition = `transform ${dur} ${easing}`
+    }
+    layerRefs.current.forEach(el => {
+      if (el) el.style.transition = `transform ${dur} ${easing}`
+    })
+
     schedule()
+
+    setTimeout(() => {
+      if (stageRef.current) stageRef.current.style.transition = ''
+      layerRefs.current.forEach(el => {
+        if (el) el.style.transition = ''
+      })
+    }, 400)
   }
 
   function handleMouseDown() {
+    if (stageRef.current) stageRef.current.style.transition = ''
+    layerRefs.current.forEach(el => {
+      if (el) el.style.transition = ''
+    })
     draggingRef.current = true
     schedule()
     document.addEventListener('mousemove', handleMove)
