@@ -20,8 +20,6 @@
   --color-hairline: rgba(15,0,0,0.12);
   --color-hairline-strong: #646262;
   --color-on-dark: #fdfcfc;
-  --color-on-dark-mute: #9a9898;
-  --color-accent: #007aff;
   --radius-sm: 4px;
   --radius-full: 9999px;
   --spacing-section: 96px;
@@ -44,7 +42,6 @@
   --color-hairline-strong: #636366;
   --color-on-dark: #fdfcfc;
   --color-on-dark-mute: #9a9898;
-  --color-accent: #0a84ff;
 }
 
 /* ── Body ── */
@@ -104,27 +101,7 @@ body {
   gap: 8px;
 }
 
-.lang-btn,
-.theme-btn,
-.nav-btn {
-  background: var(--color-surface-soft);
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-sm);
-  padding: 4px 12px;
-  font-size: 14px;
-  font-family: var(--font-mono);
-  line-height: 2;
-  cursor: pointer;
-  color: var(--color-mute);
-  transition: border-color 0.15s, color 0.15s;
-}
 
-.lang-btn:hover,
-.theme-btn:hover,
-.nav-btn:hover {
-  border-color: var(--color-ink);
-  color: var(--color-ink);
-}
 
 .theme-btn {
   font-size: 16px;
@@ -265,35 +242,54 @@ body {
   line-height: 1.4;
 }
 
-/* ── Buttons ── */
+/* ── Buttons (unified: border + flat bg + muted text) ── */
+.lang-btn,
+.theme-btn,
+.nav-btn,
+.upload-bar-btn,
+.lang-btn,
+.theme-btn,
+.nav-btn,
+.upload-bar-btn,
+.export-btn,
 .convert-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas);
+  color: var(--color-mute);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 2;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.lang-btn:hover,
+.theme-btn:hover,
+.nav-btn:hover,
+.upload-bar-btn:hover,
+.export-btn:hover,
+.convert-btn:hover:not(:disabled) {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+.convert-btn,
+.export-btn {
   width: 100%;
   padding: 4px 20px;
   height: 36px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-ink);
-  color: var(--color-on-dark);
-  font-family: var(--font-mono);
   font-size: 14px;
-  font-weight: 500;
-  line-height: 2;
-  cursor: pointer;
-  transition: background 0.15s;
 }
 
-.convert-btn:hover:not(:disabled) {
-  background: var(--color-ink-deep);
-}
-
-.convert-btn:active:not(:disabled) {
-  background: var(--color-ink-deep);
-}
-
-.convert-btn:disabled {
-  background: var(--color-surface-card);
+.convert-btn:disabled,
+.export-btn:disabled {
   color: var(--color-ash);
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ── Upload ── */
@@ -357,23 +353,6 @@ body {
   flex-shrink: 0;
 }
 
-.upload-bar-btn {
-  font-size: 12px;
-  padding: 2px 8px;
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-sm);
-  background: var(--color-canvas);
-  color: var(--color-mute);
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-  font-family: var(--font-mono);
-  line-height: 2;
-}
-
-.upload-bar-btn:hover {
-  border-color: var(--color-ink);
-  color: var(--color-ink);
-}
 
 /* ── Preview ── */
 .preview {
@@ -495,25 +474,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.export-btn {
-  padding: 4px 20px;
-  height: 36px;
-  border: 1px solid var(--color-ink);
-  border-radius: var(--radius-sm);
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.export-btn:hover {
-  background: var(--color-ink);
-  color: var(--color-on-dark);
 }
 
 /* ── Block Stats ── */
