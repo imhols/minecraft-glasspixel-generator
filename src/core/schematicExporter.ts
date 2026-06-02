@@ -26,7 +26,7 @@ const CORAL_BLOCKS = new Set([
 ])
 
 const SUPPORT_BLOCK = 'minecraft:cobblestone'
-const WATER_BLOCK = 'minecraft:oak_leaves[waterlogged=true]'
+const WATER_BLOCK = 'minecraft:oak_leaves[waterlogged=true,persistent=true]'
 
 const DATA_VERSION: Record<string, number> = {
   '1.12.2': 1343,
@@ -93,7 +93,8 @@ function fillPaletteBlockData(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const data = new Array<number>(width * height * len).fill(0)
   let idx = 0
@@ -101,25 +102,44 @@ function fillPaletteBlockData(
 
   if (ver) {
     for (let y = 0; y < height; y++) {
-      const imgRow = height - 1 - y
-      for (let z = 0; z < len; z++) {
-        for (let x = 0; x < width; x++) {
-          if (z === 0) {
-            data[idx] = paletteMap.get(stateGrid[imgRow][x])!
-          } else if (hasSupportLayer && z === 1) {
-            data[idx] = supportGrid[imgRow][x] ? paletteMap.get(supportGrid[imgRow][x])! : paletteMap.get(AIR)!
-          } else {
-            const glassZ = z - (hasSupportLayer ? 2 : 1)
-            if (glassZ % 2 === 0) {
-              const glassIndex = glassZ / 2
-              const layer = glassLayers - 1 - glassIndex
-              const glass = result.glassGrids![layer][imgRow][x]
-              data[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+      if (needsGravity && y === 0) {
+        const bottomRow = result.height - 1
+        for (let z = 0; z < len; z++) {
+          for (let x = 0; x < width; x++) {
+            if (z === 0 && hasSupportLayer) {
+              const sid = supportGrid[bottomRow][x]
+              data[idx] = sid === WATER_BLOCK ? paletteMap.get(sid)! : paletteMap.get(AIR)!
+            } else if (z === 1) {
+              const sid = supportGrid[bottomRow][x]
+              data[idx] = sid === SUPPORT_BLOCK ? paletteMap.get(sid)! : paletteMap.get(AIR)!
             } else {
               data[idx] = paletteMap.get(AIR)!
             }
+            idx++
           }
-          idx++
+        }
+      } else {
+        const imgRow = result.height - 1 - (y - (needsGravity ? 1 : 0))
+        for (let z = 0; z < len; z++) {
+          for (let x = 0; x < width; x++) {
+            if (z === 0 && hasSupportLayer) {
+              const sid = supportGrid[imgRow][x]
+              data[idx] = sid === WATER_BLOCK ? paletteMap.get(sid)! : paletteMap.get(AIR)!
+            } else if (z === (hasSupportLayer ? 1 : 0)) {
+              data[idx] = paletteMap.get(stateGrid[imgRow][x])!
+            } else {
+              const glassZ = z - (hasSupportLayer ? 2 : 1)
+              if (glassZ % 2 === 0) {
+                const glassIndex = glassZ / 2
+                const layer = glassLayers - 1 - glassIndex
+                const glass = result.glassGrids![layer][imgRow][x]
+                data[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+              } else {
+                data[idx] = paletteMap.get(AIR)!
+              }
+            }
+            idx++
+          }
         }
       }
       report(y)
@@ -163,7 +183,8 @@ function fillLegacyBlockData(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
   const total = width * height * len
   const blocks = new Uint8Array(total)
   const blockData = new Uint8Array(total)
@@ -175,6 +196,18 @@ function fillLegacyBlockData(
     blocks[idx] = bid
     blockData[idx] = orientation ? legacyBlockData(block.id, orientation) : bd
   }
+  const setGravity = (sid: string) => {
+    if (sid !== SUPPORT_BLOCK) { return }
+    const [bid, bd] = getLegacyBlockId(sid)
+    blocks[idx] = bid
+    blockData[idx] = bd
+  }
+  const setWater = (sid: string) => {
+    if (sid !== WATER_BLOCK) { return }
+    const [bid, bd] = getLegacyBlockId(sid)
+    blocks[idx] = bid
+    blockData[idx] = bd
+  }
   const setSupport = (sid: string) => {
     if (!sid) { blocks[idx] = 0; blockData[idx] = 0; return }
     const [bid, bd] = getLegacyBlockId(sid)
@@ -184,27 +217,43 @@ function fillLegacyBlockData(
 
   if (ver) {
     for (let y = 0; y < height; y++) {
-      const imgRow = height - 1 - y
-      for (let z = 0; z < len; z++) {
-        for (let x = 0; x < width; x++) {
-          if (z === 0) {
-            const block = result.blockGrid[imgRow][x]
-            const o = result.orientationGrid?.[imgRow]?.[x]
-            setLegacy(block, o)
-          } else if (hasSupportLayer && z === 1) {
-            setSupport(supportGrid[imgRow][x])
-          } else {
-            const glassZ = z - (hasSupportLayer ? 2 : 1)
-            if (glassZ % 2 === 0) {
-              const glassIndex = glassZ / 2
-              const layer = glassLayers - 1 - glassIndex
-              const glass = result.glassGrids![layer][imgRow][x]
-              setLegacy(glass)
+      if (needsGravity && y === 0) {
+        const bottomRow = result.height - 1
+        for (let z = 0; z < len; z++) {
+          for (let x = 0; x < width; x++) {
+            if (z === 0 && hasSupportLayer) {
+              setWater(supportGrid[bottomRow][x])
+            } else if (z === 1) {
+              setGravity(supportGrid[bottomRow][x])
             } else {
               blocks[idx] = 0; blockData[idx] = 0
             }
+            idx++
           }
-          idx++
+        }
+      } else {
+        const imgRow = result.height - 1 - (y - (needsGravity ? 1 : 0))
+        for (let z = 0; z < len; z++) {
+          for (let x = 0; x < width; x++) {
+            if (z === 0 && hasSupportLayer) {
+              setWater(supportGrid[imgRow][x])
+            } else if (z === (hasSupportLayer ? 1 : 0)) {
+              const block = result.blockGrid[imgRow][x]
+              const o = result.orientationGrid?.[imgRow]?.[x]
+              setLegacy(block, o)
+            } else {
+              const glassZ = z - (hasSupportLayer ? 2 : 1)
+              if (glassZ % 2 === 0) {
+                const glassIndex = glassZ / 2
+                const layer = glassLayers - 1 - glassIndex
+                const glass = result.glassGrids![layer][imgRow][x]
+                setLegacy(glass)
+              } else {
+                blocks[idx] = 0; blockData[idx] = 0
+              }
+            }
+            idx++
+          }
         }
       }
     }
@@ -250,7 +299,8 @@ export function exportSchemV2(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
@@ -304,7 +354,8 @@ export function exportLitematic(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
@@ -463,7 +514,8 @@ export function exportSchematic(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const [blocks, blockData] = fillLegacyBlockData(result, width, supportGrid, hasSupportLayer, glassLayers)
 
@@ -493,7 +545,8 @@ export async function exportSchemV2Async(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
@@ -557,7 +610,8 @@ export async function exportLitematicAsync(
   const ver = result.verticalLayout
   const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
   const len = ver ? depthTotal : result.height
-  const height = ver ? result.height : depthTotal
+  const needsGravity = ver && supportGrid.some(r => r.some(c => c === SUPPORT_BLOCK))
+  const height = ver ? result.height + (needsGravity ? 1 : 0) : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
