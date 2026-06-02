@@ -292,6 +292,11 @@ body {
   pointer-events: none;
 }
 
+.nav-btn,
+.upload-bar-btn {
+  font-size: 12px;
+}
+
 /* ── Upload ── */
 .upload-zone {
   border: 1px dashed var(--color-hairline-strong);
