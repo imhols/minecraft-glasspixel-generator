@@ -16,6 +16,7 @@ export interface ProcessedImage {
   glassLayers?: number
   alphaMask?: boolean[][]  // true = transparent (air)
   blockMap?: Map<string, PaletteBlock>  // ID→block lookup for fast preview
+  verticalLayout?: boolean  // true = stood up as wall, false = flat on ground
 }
 
 const KERNELS: Record<Exclude<DitherMode, 'none'>, { dx: number; dy: number; w: number }[]> = {

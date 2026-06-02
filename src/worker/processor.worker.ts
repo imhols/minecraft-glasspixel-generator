@@ -36,6 +36,7 @@ export interface ProcessResultMessage {
   glassBlockIds?: (string | null)[][][]
   orientationStrs?: (string | undefined)[][]
   alphaMask?: boolean[][]
+  verticalLayout?: boolean
 }
 
 export type WorkerMessage = ProgressMessage | ProcessResultMessage
@@ -126,6 +127,7 @@ self.onmessage = async (e: MessageEvent<ProcessTask>) => {
     glassBlockIds,
     orientationStrs,
     alphaMask: result.alphaMask,
+    verticalLayout: facing === 'vertical',
   }
 
   self.postMessage(msg, { transfer: [flatPixels.buffer] })

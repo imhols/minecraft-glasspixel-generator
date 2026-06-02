@@ -34,7 +34,7 @@ function reconstructFromWorker(
   palette: PaletteBlock[],
   glassPalette: PaletteBlock[],
 ): ProcessedImage {
-  const { width, height, flatPixels, blockIds, usedBlocks, glassLayers, glassBlockIds, orientationStrs, alphaMask } = msg
+  const { width, height, flatPixels, blockIds, usedBlocks, glassLayers, glassBlockIds, orientationStrs, alphaMask, verticalLayout } = msg
   const paletteMap = new Map<string, PaletteBlock>()
   for (const b of palette) paletteMap.set(b.id, b)
   for (const b of glassPalette) paletteMap.set(b.id, b)
@@ -72,6 +72,7 @@ function reconstructFromWorker(
     orientationGrid,
     usedBlocks: new Map(usedBlocks),
     blockMap,
+    verticalLayout,
   }
 
   if (alphaMask && alphaMask.some(row => row.some(a => a))) result.alphaMask = alphaMask

@@ -2,6 +2,7 @@ import pako from 'pako'
 import { writeSchemNbt, writeLegacySchemNbt, writeLitematicNbt } from './nbtWriter'
 import type { ProcessedImage } from './imageProcessor'
 import type { BlockOrientation } from '../types'
+import type { PaletteBlock } from '../data/palettes'
 
 function blockStateId(id: string, orientation?: BlockOrientation): string {
   if (!orientation) return id
@@ -25,7 +26,7 @@ const CORAL_BLOCKS = new Set([
 ])
 
 const SUPPORT_BLOCK = 'minecraft:cobblestone'
-const WATER_BLOCK = 'minecraft:water'
+const WATER_BLOCK = 'minecraft:oak_leaves[waterlogged=true]'
 
 const DATA_VERSION: Record<string, number> = {
   '1.12.2': 1343,
@@ -56,14 +57,15 @@ function buildSupportGrid(
   keepCoral: boolean,
 ): SupportGrid {
   const grid: SupportGrid = []
-  for (let z = 0; z < result.height; z++) {
+  for (let i = 0; i < result.height; i++) {
     const row: string[] = new Array(result.width).fill('')
     for (let x = 0; x < result.width; x++) {
-      const block = result.blockGrid[z][x]
+      const block = result.blockGrid[i][x]
       if (!block) continue
+      const isBottomRow = result.verticalLayout ? (i === result.height - 1) : true
       if (keepCoral && CORAL_BLOCKS.has(block.id)) {
         row[x] = WATER_BLOCK
-      } else if (supportGravity && GRAVITY_BLOCKS.has(block.id)) {
+      } else if (supportGravity && GRAVITY_BLOCKS.has(block.id) && isBottomRow) {
         row[x] = SUPPORT_BLOCK
       }
     }
@@ -76,6 +78,165 @@ function hasSupport(supportGrid: SupportGrid): boolean {
   return supportGrid.some(r => r.some(c => c !== ''))
 }
 
+/** Shared palette-index block data filler for both horizontal and vertical layouts. */
+function fillPaletteBlockData(
+  result: ProcessedImage,
+  width: number,
+  supportGrid: SupportGrid,
+  hasSupportLayer: boolean,
+  stateGrid: string[][],
+  glassLayers: number,
+  paletteMap: Map<string, number>,
+  AIR: string,
+  onProgress?: (pct: number) => void,
+): number[] {
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
+
+  const data = new Array<number>(width * height * len).fill(0)
+  let idx = 0
+  const report = (y: number) => onProgress?.(0.35 + 0.45 * (y / height))
+
+  if (ver) {
+    for (let y = 0; y < height; y++) {
+      const imgRow = height - 1 - y
+      for (let z = 0; z < len; z++) {
+        for (let x = 0; x < width; x++) {
+          if (z === 0) {
+            data[idx] = paletteMap.get(stateGrid[imgRow][x])!
+          } else if (hasSupportLayer && z === 1) {
+            data[idx] = supportGrid[imgRow][x] ? paletteMap.get(supportGrid[imgRow][x])! : paletteMap.get(AIR)!
+          } else {
+            const glassZ = z - (hasSupportLayer ? 2 : 1)
+            if (glassZ % 2 === 0) {
+              const glassIndex = glassZ / 2
+              const layer = glassLayers - 1 - glassIndex
+              const glass = result.glassGrids![layer][imgRow][x]
+              data[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+            } else {
+              data[idx] = paletteMap.get(AIR)!
+            }
+          }
+          idx++
+        }
+      }
+      report(y)
+    }
+  } else {
+    for (let y = 0; y < height; y++) {
+      for (let z = 0; z < len; z++) {
+        for (let x = 0; x < width; x++) {
+          if (hasSupportLayer && y === 0) {
+            data[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
+          } else {
+            const baseY = hasSupportLayer ? y - 1 : y
+            if (baseY === 0) {
+              data[idx] = paletteMap.get(stateGrid[z][x])!
+            } else if (baseY % 2 === 1) {
+              const glassIndex = (baseY - 1) / 2
+              const layer = glassLayers - 1 - glassIndex
+              const glass = result.glassGrids![layer][z][x]
+              data[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
+            } else {
+              data[idx] = paletteMap.get(AIR)!
+            }
+          }
+          idx++
+        }
+      }
+      report(y)
+    }
+  }
+  return data
+}
+
+/** Shared legacy block-data filler (block ID + data value arrays) for horizontal/vertical layouts. */
+function fillLegacyBlockData(
+  result: ProcessedImage,
+  width: number,
+  supportGrid: SupportGrid,
+  hasSupportLayer: boolean,
+  glassLayers: number,
+): [Uint8Array, Uint8Array] {
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
+  const total = width * height * len
+  const blocks = new Uint8Array(total)
+  const blockData = new Uint8Array(total)
+  let idx = 0
+
+  const setLegacy = (block: PaletteBlock | null, orientation?: BlockOrientation) => {
+    if (!block) { blocks[idx] = 0; blockData[idx] = 0; return }
+    const [bid, bd] = getLegacyBlockId(block.id)
+    blocks[idx] = bid
+    blockData[idx] = orientation ? legacyBlockData(block.id, orientation) : bd
+  }
+  const setSupport = (sid: string) => {
+    if (!sid) { blocks[idx] = 0; blockData[idx] = 0; return }
+    const [bid, bd] = getLegacyBlockId(sid)
+    blocks[idx] = bid
+    blockData[idx] = bd
+  }
+
+  if (ver) {
+    for (let y = 0; y < height; y++) {
+      const imgRow = height - 1 - y
+      for (let z = 0; z < len; z++) {
+        for (let x = 0; x < width; x++) {
+          if (z === 0) {
+            const block = result.blockGrid[imgRow][x]
+            const o = result.orientationGrid?.[imgRow]?.[x]
+            setLegacy(block, o)
+          } else if (hasSupportLayer && z === 1) {
+            setSupport(supportGrid[imgRow][x])
+          } else {
+            const glassZ = z - (hasSupportLayer ? 2 : 1)
+            if (glassZ % 2 === 0) {
+              const glassIndex = glassZ / 2
+              const layer = glassLayers - 1 - glassIndex
+              const glass = result.glassGrids![layer][imgRow][x]
+              setLegacy(glass)
+            } else {
+              blocks[idx] = 0; blockData[idx] = 0
+            }
+          }
+          idx++
+        }
+      }
+    }
+  } else {
+    for (let y = 0; y < height; y++) {
+      for (let z = 0; z < len; z++) {
+        for (let x = 0; x < width; x++) {
+          if (hasSupportLayer && y === 0) {
+            setSupport(supportGrid[z][x])
+          } else {
+            const baseY = hasSupportLayer ? y - 1 : y
+            if (baseY === 0) {
+              const block = result.blockGrid[z][x]
+              const o = result.orientationGrid?.[z]?.[x]
+              setLegacy(block, o)
+            } else if (baseY % 2 === 1) {
+              const glassIndex = (baseY - 1) / 2
+              const layer = glassLayers - 1 - glassIndex
+              const glass = result.glassGrids![layer][z][x]
+              setLegacy(glass)
+            } else {
+              blocks[idx] = 0; blockData[idx] = 0
+            }
+          }
+          idx++
+        }
+      }
+    }
+  }
+  return [blocks, blockData]
+}
+
 export function exportSchemV2(
   result: ProcessedImage,
   version: string,
@@ -86,28 +247,29 @@ export function exportSchemV2(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
-  // Pre-compute state ID for each block position
   const stateGrid: string[][] = []
-  for (let z = 0; z < length; z++) {
+  const gridRows = ver ? result.height : result.height
+  for (let i = 0; i < gridRows; i++) {
     const row: string[] = []
     for (let x = 0; x < width; x++) {
-      const block = result.blockGrid[z][x]
-      const orientation = result.orientationGrid?.[z]?.[x]
-      const sid = supportGrid[z][x]
+      const block = result.blockGrid[i][x]
+      const orientation = result.orientationGrid?.[i]?.[x]
+      const sid = supportGrid[i][x]
       if (sid) blockSet.add(sid)
       const stateId = block ? blockStateId(block.id, orientation) : AIR
       row.push(stateId)
       blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
-          const g = result.glassGrids[l][z][x]
+          const g = result.glassGrids[l][i][x]
           if (g) blockSet.add(g.id)
         }
       }
@@ -119,33 +281,10 @@ export function exportSchemV2(
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
-  const blockData = new Array<number>(width * totalHeight * length).fill(0)
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            blockData[idx] = paletteMap.get(stateGrid[z][x])!
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
-          } else {
-            blockData[idx] = paletteMap.get(AIR)!
-          }
-        }
-        idx++
-      }
-    }
-  }
+  const blockData = fillPaletteBlockData(result, width, supportGrid, hasSupportLayer, stateGrid, glassLayers, paletteMap, AIR)
 
   const raw = writeSchemNbt(
-    width, totalHeight, length,
+    width, height, len,
     palette, paletteMap, blockData,
     DATA_VERSION[getVersionKey(version)] || 3700,
   )
@@ -162,27 +301,28 @@ export function exportLitematic(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
   const stateGrid: string[][] = []
-  for (let z = 0; z < length; z++) {
+  for (let i = 0; i < result.height; i++) {
     const row: string[] = []
     for (let x = 0; x < width; x++) {
-      const block = result.blockGrid[z][x]
-      const orientation = result.orientationGrid?.[z]?.[x]
-      const sid = supportGrid[z][x]
+      const block = result.blockGrid[i][x]
+      const orientation = result.orientationGrid?.[i]?.[x]
+      const sid = supportGrid[i][x]
       if (sid) blockSet.add(sid)
       const stateId = block ? blockStateId(block.id, orientation) : AIR
       row.push(stateId)
       blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
-          const g = result.glassGrids[l][z][x]
+          const g = result.glassGrids[l][i][x]
           if (g) blockSet.add(g.id)
         }
       }
@@ -194,32 +334,8 @@ export function exportLitematic(
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
-  const blockData = new Uint8Array(width * totalHeight * length)
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            blockData[idx] = paletteMap.get(stateGrid[z][x])!
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
-          } else {
-            blockData[idx] = paletteMap.get(AIR)!
-          }
-        }
-        idx++
-      }
-    }
-  }
-
-  const raw = writeLitematicNbt(width, totalHeight, length, palette, blockData)
+  const blockData = fillPaletteBlockData(result, width, supportGrid, hasSupportLayer, stateGrid, glassLayers, paletteMap, AIR)
+  const raw = writeLitematicNbt(width, height, len, palette, new Uint8Array(blockData))
   return pako.gzip(raw)
 }
 
@@ -344,54 +460,14 @@ export function exportSchematic(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
-  const total = width * totalHeight * length
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
-  const blocks = new Uint8Array(total)
-  const blockData = new Uint8Array(total)
+  const [blocks, blockData] = fillLegacyBlockData(result, width, supportGrid, hasSupportLayer, glassLayers)
 
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          const sid = supportGrid[z][x]
-          if (sid) {
-            const [id, data] = getLegacyBlockId(sid)
-            blocks[idx] = id
-            blockData[idx] = data
-          } else {
-            blocks[idx] = 0
-            blockData[idx] = 0
-          }
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            const block = result.blockGrid[z][x]
-            const orientation = result.orientationGrid?.[z]?.[x]
-            const [id] = block ? getLegacyBlockId(block.id) : [0]
-            blocks[idx] = id
-            blockData[idx] = block ? legacyBlockData(block.id, orientation) : 0
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            const [id, data] = glass ? getLegacyBlockId(glass.id) : [0, 0]
-            blocks[idx] = id
-            blockData[idx] = data
-          } else {
-            blocks[idx] = 0
-            blockData[idx] = 0
-          }
-        }
-        idx++
-      }
-    }
-  }
-
-  const raw = writeLegacySchemNbt(width, totalHeight, length, blocks, blockData)
+  const raw = writeLegacySchemNbt(width, height, len, blocks, blockData)
   return pako.gzip(raw)
 }
 
@@ -414,33 +490,34 @@ export async function exportSchemV2Async(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
   const stateGrid: string[][] = []
-  for (let z = 0; z < length; z++) {
+  for (let i = 0; i < result.height; i++) {
     const row: string[] = []
     for (let x = 0; x < width; x++) {
-      const block = result.blockGrid[z][x]
-      const orientation = result.orientationGrid?.[z]?.[x]
-      const sid = supportGrid[z][x]
+      const block = result.blockGrid[i][x]
+      const orientation = result.orientationGrid?.[i]?.[x]
+      const sid = supportGrid[i][x]
       if (sid) blockSet.add(sid)
       const stateId = block ? blockStateId(block.id, orientation) : AIR
       row.push(stateId)
       blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
-          const g = result.glassGrids[l][z][x]
+          const g = result.glassGrids[l][i][x]
           if (g) blockSet.add(g.id)
         }
       }
     }
     stateGrid.push(row)
-    if (z % 10 === 0) await yieldToMain()
+    if (i % 10 === 0) await yieldToMain()
   }
   onProgress?.(0.3)
 
@@ -450,36 +527,13 @@ export async function exportSchemV2Async(
   await yieldToMain()
   onProgress?.(0.35)
 
-  const blockData = new Array<number>(width * totalHeight * length).fill(0)
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            blockData[idx] = paletteMap.get(stateGrid[z][x])!
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
-          } else {
-            blockData[idx] = paletteMap.get(AIR)!
-          }
-        }
-        idx++
-      }
-    }
-    onProgress?.(0.35 + 0.45 * (y / totalHeight))
-    await yieldToMain()
-  }
+  const blockData = fillPaletteBlockData(result, width, supportGrid, hasSupportLayer, stateGrid, glassLayers, paletteMap, AIR, onProgress)
   onProgress?.(0.8)
 
+  await yieldToMain()
+
   const raw = writeSchemNbt(
-    width, totalHeight, length,
+    width, height, len,
     palette, paletteMap, blockData,
     DATA_VERSION[getVersionKey(version)] || 3700,
   )
@@ -500,33 +554,34 @@ export async function exportLitematicAsync(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
   const AIR = 'minecraft:air'
   const blockSet = new Set<string>()
   blockSet.add(AIR)
   const stateGrid: string[][] = []
-  for (let z = 0; z < length; z++) {
+  for (let i = 0; i < result.height; i++) {
     const row: string[] = []
     for (let x = 0; x < width; x++) {
-      const block = result.blockGrid[z][x]
-      const orientation = result.orientationGrid?.[z]?.[x]
-      const sid = supportGrid[z][x]
+      const block = result.blockGrid[i][x]
+      const orientation = result.orientationGrid?.[i]?.[x]
+      const sid = supportGrid[i][x]
       if (sid) blockSet.add(sid)
       const stateId = block ? blockStateId(block.id, orientation) : AIR
       row.push(stateId)
       blockSet.add(stateId)
       if (result.glassGrids) {
         for (let l = 0; l < glassLayers; l++) {
-          const g = result.glassGrids[l][z][x]
+          const g = result.glassGrids[l][i][x]
           if (g) blockSet.add(g.id)
         }
       }
     }
     stateGrid.push(row)
-    if (z % 10 === 0) await yieldToMain()
+    if (i % 10 === 0) await yieldToMain()
   }
   onProgress?.(0.3)
 
@@ -536,35 +591,11 @@ export async function exportLitematicAsync(
   await yieldToMain()
   onProgress?.(0.35)
 
-  const blockData = new Uint8Array(width * totalHeight * length)
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          blockData[idx] = supportGrid[z][x] ? paletteMap.get(supportGrid[z][x])! : paletteMap.get(AIR)!
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            blockData[idx] = paletteMap.get(stateGrid[z][x])!
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            blockData[idx] = glass ? paletteMap.get(glass.id)! : paletteMap.get(AIR)!
-          } else {
-            blockData[idx] = paletteMap.get(AIR)!
-          }
-        }
-        idx++
-      }
-    }
-    onProgress?.(0.35 + 0.45 * (y / totalHeight))
-    await yieldToMain()
-  }
+  const blockData = fillPaletteBlockData(result, width, supportGrid, hasSupportLayer, stateGrid, glassLayers, paletteMap, AIR, onProgress)
   onProgress?.(0.8)
+  await yieldToMain()
 
-  const raw = writeLitematicNbt(width, totalHeight, length, palette, blockData)
+  const raw = writeLitematicNbt(width, height, len, palette, new Uint8Array(blockData))
   const compressed = pako.gzip(raw)
   onProgress?.(1)
   return compressed
@@ -582,57 +613,16 @@ export async function exportSchematicAsync(
   const width = result.width
   const glassLayers = result.glassLayers || 0
   const hasSupportLayer = hasSupport(supportGrid)
-  const extraY = hasSupportLayer ? 1 : 0
-  const totalHeight = (glassLayers === 0 ? 1 : glassLayers * 2) + extraY
-  const length = result.height
-  const total = width * totalHeight * length
+  const ver = result.verticalLayout
+  const depthTotal = (glassLayers === 0 ? 1 : glassLayers * 2) + (hasSupportLayer ? 1 : 0)
+  const len = ver ? depthTotal : result.height
+  const height = ver ? result.height : depthTotal
 
-  const blocks = new Uint8Array(total)
-  const blockDataArr = new Uint8Array(total)
-
-  let idx = 0
-  for (let y = 0; y < totalHeight; y++) {
-    for (let z = 0; z < length; z++) {
-      for (let x = 0; x < width; x++) {
-        if (hasSupportLayer && y === 0) {
-          const sid = supportGrid[z][x]
-          if (sid) {
-            const [bid, bd] = getLegacyBlockId(sid)
-            blocks[idx] = bid
-            blockDataArr[idx] = bd
-          } else {
-            blocks[idx] = 0
-            blockDataArr[idx] = 0
-          }
-        } else {
-          const baseY = hasSupportLayer ? y - 1 : y
-          if (baseY === 0) {
-            const block = result.blockGrid[z][x]
-            const orientation = result.orientationGrid?.[z]?.[x]
-            const [bid] = block ? getLegacyBlockId(block.id) : [0]
-            blocks[idx] = bid
-            blockDataArr[idx] = block ? legacyBlockData(block.id, orientation) : 0
-          } else if (baseY % 2 === 1) {
-            const glassIndex = (baseY - 1) / 2
-            const layer = glassLayers - 1 - glassIndex
-            const glass = result.glassGrids![layer][z][x]
-            const [bid, bd] = glass ? getLegacyBlockId(glass.id) : [0, 0]
-            blocks[idx] = bid
-            blockDataArr[idx] = bd
-          } else {
-            blocks[idx] = 0
-            blockDataArr[idx] = 0
-          }
-        }
-        idx++
-      }
-    }
-    onProgress?.(0.05 + 0.75 * (y / totalHeight))
-    await yieldToMain()
-  }
+  const [blocks, blockDataArr] = fillLegacyBlockData(result, width, supportGrid, hasSupportLayer, glassLayers)
   onProgress?.(0.8)
+  await yieldToMain()
 
-  const raw = writeLegacySchemNbt(width, totalHeight, length, blocks, blockDataArr)
+  const raw = writeLegacySchemNbt(width, height, len, blocks, blockDataArr)
   const compressed = pako.gzip(raw)
   onProgress?.(1)
   return compressed
