@@ -97,7 +97,7 @@ export default function BlockFilter({ excluded, onChange }: BlockFilterProps) {
           ref={inputRef}
           className="bf-search"
           type="text"
-          placeholder="搜索 id"
+          placeholder={t('config.blockFilter.searchPlaceholder')}
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
@@ -111,7 +111,7 @@ export default function BlockFilter({ excluded, onChange }: BlockFilterProps) {
       {filtered !== null && (
         <div className="bf-search-results">
           {filtered.length === 0 ? (
-            <div className="bf-search-empty">无匹配</div>
+            <div className="bf-search-empty">{t('config.blockFilter.noMatch')}</div>
           ) : (
             <div className="bf-swatch-grid">
               {filtered.map(b => (
@@ -135,7 +135,7 @@ export default function BlockFilter({ excluded, onChange }: BlockFilterProps) {
 
       {excluded.size > 0 && (
         <div className="bf-excluded-section">
-          <div className="bf-excluded-header">已排除 ({excluded.size})</div>
+          <div className="bf-excluded-header">{t('config.blockFilter.excludedCount').replace('{count}', String(excluded.size))}</div>
           <div className="bf-excluded-body">
             <div className="bf-swatch-grid">
               {Array.from(excluded).map(id => {

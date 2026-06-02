@@ -102,7 +102,6 @@ export default function ConfigPanel({ onConvert, loading, hasImage, ditherMode, 
       </div>
 
       <div className="config-group config-filter-row">
-        <label>{t('config.blockFilter')}</label>
         <BlockFilterModal excluded={excluded} onChange={onBlockFilterChange} />
       </div>
 
@@ -160,7 +159,7 @@ function BlockFilterModal({ excluded, onChange }: { excluded: Set<string>; onCha
   return (
     <>
       <button className="bf-open-btn" onClick={() => setOpen(true)}>
-        搜索 id
+        {t('config.blockFilter')}
       </button>
       {open && (
         <div className="bf-overlay" onClick={() => setOpen(false)}>
