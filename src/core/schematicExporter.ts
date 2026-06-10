@@ -327,7 +327,7 @@ export function exportSchemV2(
     stateGrid.push(row)
   }
 
-  const palette = Array.from(blockSet).sort()
+  const palette = [AIR, ...Array.from(blockSet).filter(id => id !== AIR).sort()]
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
@@ -381,12 +381,13 @@ export function exportLitematic(
     stateGrid.push(row)
   }
 
-  const palette = Array.from(blockSet).sort()
+  const palette = [AIR, ...Array.from(blockSet).filter(id => id !== AIR).sort()]
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
 
   const blockData = fillPaletteBlockData(result, width, supportGrid, hasSupportLayer, stateGrid, glassLayers, paletteMap, AIR)
-  const raw = writeLitematicNbt(width, height, len, palette, new Uint8Array(blockData))
+  const dv = DATA_VERSION[getVersionKey(_version)] || 3700
+  const raw = writeLitematicNbt(width, height, len, palette, blockData, dv)
   return pako.gzip(raw)
 }
 
@@ -574,7 +575,7 @@ export async function exportSchemV2Async(
   }
   onProgress?.(0.3)
 
-  const palette = Array.from(blockSet).sort()
+  const palette = [AIR, ...Array.from(blockSet).filter(id => id !== AIR).sort()]
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
   await yieldToMain()
@@ -639,7 +640,7 @@ export async function exportLitematicAsync(
   }
   onProgress?.(0.3)
 
-  const palette = Array.from(blockSet).sort()
+  const palette = [AIR, ...Array.from(blockSet).filter(id => id !== AIR).sort()]
   const paletteMap = new Map<string, number>()
   palette.forEach((id, i) => { paletteMap.set(id, i) })
   await yieldToMain()
@@ -649,7 +650,8 @@ export async function exportLitematicAsync(
   onProgress?.(0.8)
   await yieldToMain()
 
-  const raw = writeLitematicNbt(width, height, len, palette, new Uint8Array(blockData))
+  const dv = DATA_VERSION[getVersionKey(_version)] || 3700
+  const raw = writeLitematicNbt(width, height, len, palette, blockData, dv)
   const compressed = pako.gzip(raw)
   onProgress?.(1)
   return compressed

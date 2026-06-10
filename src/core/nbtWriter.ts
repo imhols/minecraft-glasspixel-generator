@@ -59,9 +59,9 @@ varIntByteArray(indices: number[]): this {
   longArray(v: bigint[]): this {
     this.int(v.length)
     for (const n of v) {
-      let val = n
+      const val = n
       for (let i = 7; i >= 0; i--) {
-        this.buf.push(Number(val >> BigInt(i * 8)) & 0xFF)
+        this.buf.push(Number((val >> BigInt(i * 8)) & 0xFFn))
       }
     }
     return this
@@ -202,8 +202,8 @@ export function writeLegacySchemNbt(
   return w.toBytes()
 }
 
-function getTimestampLong(): bigint {
-  return BigInt(Math.floor(Date.now() / 1000)) << 32n
+function getTimestampMs(): bigint {
+  return BigInt(Date.now())
 }
 
 export function writeLitematicNbt(
@@ -211,9 +211,11 @@ export function writeLitematicNbt(
   height: number,
   length: number,
   palette: string[],
-  blockData: Uint8Array,
+  blockData: number[],
+  dataVersion: number,
 ): Uint8Array {
-  const bitsPerBlock = Math.max(1, Math.ceil(Math.log2(palette.length)))
+  const MASK64 = (1n << 64n) - 1n
+  const bitsPerBlock = Math.max(2, Math.ceil(Math.log2(palette.length)))
   const totalBits = blockData.length * bitsPerBlock
   const longs = Math.ceil(totalBits / 64)
   const words = new Array<bigint>(longs).fill(0n)
@@ -224,49 +226,64 @@ export function writeLitematicNbt(
     const offset = bitPos % 64
     const val = BigInt(blockData[i])
     words[word] = words[word] | (val << BigInt(offset))
+    words[word] = words[word] & MASK64
+    if (offset + bitsPerBlock > 64 && word + 1 < longs) {
+      words[word + 1] = words[word + 1] | (val >> BigInt(64 - offset))
+      words[word + 1] = words[word + 1] & MASK64
+    }
+  }
+  let nonAirCount = 0
+  for (let i = 0; i < blockData.length; i++) {
+    if (blockData[i] !== 0) nonAirCount++
   }
 
-  const now = getTimestampLong()
+  const now = getTimestampMs()
+  const totalVolume = width * height * length
 
   const w = new NbtWriter()
 
-  w.tag(10, 'Litematic')
+  w.tag(10, '')
+  w.tag(3, 'Version'); w.int(5)
+  w.tag(3, 'MinecraftDataVersion'); w.int(dataVersion)
 
   w.tag(10, 'Metadata')
+  w.tag(8, 'Name'); w.string('GlassPixel')
+  w.tag(8, 'Author'); w.string('GlassPixel')
+  w.tag(8, 'Description'); w.string('')
+  w.tag(4, 'TimeCreated'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
+  w.tag(4, 'TimeModified'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
   w.tag(10, 'EnclosingSize')
   w.tag(3, 'x'); w.int(width)
   w.tag(3, 'y'); w.int(height)
   w.tag(3, 'z'); w.int(length)
   w.end()
-  w.tag(8, 'Author'); w.string('GlassPixel')
-  w.tag(8, 'Description'); w.string('')
-  w.tag(8, 'Name'); w.string('GlassPixel')
-  w.tag(4, 'TimeCreated'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
-  w.tag(4, 'TimeModified'); w.long(Number(now >> 32n), Number(now & 0xFFFFFFFFn))
-  w.tag(3, 'TotalBlocks'); w.int(blockData.length)
-  w.tag(3, 'TotalVolume'); w.int(width * height * length)
-  w.tag(3, 'TotalBlockEntities'); w.int(0)
+  w.tag(4, 'TotalVolume'); w.long(Number(BigInt(totalVolume) >> 32n), Number(BigInt(totalVolume) & 0xFFFFFFFFn))
+  w.tag(4, 'TotalBlocks'); w.long(Number(BigInt(nonAirCount) >> 32n), Number(BigInt(nonAirCount) & 0xFFFFFFFFn))
+  w.tag(3, 'RegionCount'); w.int(1)
   w.end()
 
   w.tag(10, 'Regions')
   w.tag(10, 'GlassPixel')
-  w.tag(3, 'PositionX'); w.int(0)
-  w.tag(3, 'PositionY'); w.int(0)
-  w.tag(3, 'PositionZ'); w.int(0)
-  w.tag(3, 'SizeX'); w.int(width)
-  w.tag(3, 'SizeY'); w.int(height)
-  w.tag(3, 'SizeZ'); w.int(length)
+  w.tag(10, 'Position')
+  w.tag(3, 'x'); w.int(0)
+  w.tag(3, 'y'); w.int(0)
+  w.tag(3, 'z'); w.int(0)
+  w.end()
+  w.tag(10, 'Size')
+  w.tag(3, 'x'); w.int(width)
+  w.tag(3, 'y'); w.int(height)
+  w.tag(3, 'z'); w.int(length)
+  w.end()
+  w.tag(3, 'DataVersion'); w.int(dataVersion)
   w.tag(12, 'BlockStates')
   w.longArray(words)
   w.tag(9, 'BlockStatePalette')
   w.listStart(10, palette.length)
   for (const entry of palette) {
-    w.tag(10, '')
-    // Parse "minecraft:block[prop=val]" into Name + Properties
     const bracketIdx = entry.indexOf('[')
     if (bracketIdx >= 0) {
       const name = entry.slice(0, bracketIdx)
-      const propsStr = entry.slice(bracketIdx + 1, -1) // "axis=y"
+      const propsStr = entry.slice(bracketIdx + 1, -1)
       w.tag(8, 'Name'); w.string(name)
       w.tag(10, 'Properties')
       for (const part of propsStr.split(',')) {
@@ -281,12 +298,12 @@ export function writeLitematicNbt(
     }
     w.end()
   }
-  w.tag(3, 'TotalVolume'); w.int(width * height * length)
-  w.tag(3, 'TotalBlocks'); w.int(blockData.length)
+  w.tag(9, 'TileEntities'); w.listStart(0, 0)
+  w.tag(9, 'Entities'); w.listStart(0, 0)
   w.tag(9, 'PendingBlockTicks'); w.listStart(0, 0)
   w.tag(9, 'PendingFluidTicks'); w.listStart(0, 0)
-  w.tag(9, 'BlockEntities'); w.listStart(0, 0)
-  w.tag(9, 'Entities'); w.listStart(0, 0)
+  w.end()
+
   w.end()
 
   w.end()
